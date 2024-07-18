@@ -4,4 +4,3 @@ GM.Email = "N/A"
 GM.Website = "N/A"
 
 DeriveGamemode("base")
-
