@@ -2,6 +2,7 @@
 
 - [x] Randomly spawn the rake around the map using the Navmesh
 - [x] Lobby system
+- [x] Spawn enemies as well as the rake
 - [ ] Randomly spawn weapons around the map
 - [ ] Randomly spawn ammo or give the player ammo
 - [ ] Setup health on spawn
