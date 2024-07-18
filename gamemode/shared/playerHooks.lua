@@ -12,6 +12,13 @@ concommand.Add("rake_StartGame", function(ply, cmd, args, str)
 	end
 
 	roundManage:StartRound()
+
+	PrintTable(weapons.GetList())
+end)
+
+concommand.Add("rake_EndMatch", function(ply, cmd, args, str)
+	if not ply:IsSuperAdmin() or adminManager:PlayerIsAdmin(ply:SteamID64()) then return end
+	roundManage:EndRound(REASON_DEATHS)
 end)
 
 hook.Add("PlayerSetModel", "RakePlayerModel", function(ply) ply:SetModel("models/player/combine_soldier.mdl") end)
@@ -26,26 +33,23 @@ hook.Add("PlayerInitialSpawn", "AdminCheckAndEtc", function(ply)
 	print("Steam id: " .. ply:SteamID64())
 	if adminManager:PlayerIsAdmin(ply:SteamID64()) then
 		PrintMessage(HUD_PRINTCENTER, "Admin has joined!")
-		print("admin has joined")
 	end
 end)
 
 hook.Add("PlayerSpawn", "RakeSpawnPlayer", function(ply)
 	if not IsValid(ply) then return end
 	if not roundManager:FindPlayer(ply) then roundManager:AddPlayerObjectToCache(ply) end
+
 	ply:RemoveAllAmmo()
+
 	if roundManage:GetRoundStatus() == IN_LOBBY then
 		// We'll give them a pistol to fight their friends :)
-		ply:Give("weapon_pistol")
+		ply:Give("mg_m1911")
 		ply:GiveAmmo(550, "Pistol", true)
 		ply:GodEnable()
 	else
 		// This is most likely called when we're in the match 
 		// and somebody joins, we'll handle this
-	end
-
-	if ply:IsSuperAdmin() then // connect the start game hud to player
-		print("super admin")
 	end
 end)
 
