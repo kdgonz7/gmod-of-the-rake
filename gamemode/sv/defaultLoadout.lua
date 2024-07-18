@@ -1,0 +1,1 @@
+defaultLoadout = nil
