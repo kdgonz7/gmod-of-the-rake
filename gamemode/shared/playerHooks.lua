@@ -1,5 +1,6 @@
 roundManage = roundManager:Initialize()
 adminManager = adminManager:Initialize()
+
 for i = 1, #admins do
 	adminManager:AddAdmin(tostring(admins[i]))
 end
@@ -13,20 +14,34 @@ concommand.Add("rake_StartGame", function(ply, cmd, args, str)
 
 	roundManage:StartRound()
 
-	PrintTable(weapons.GetList())
+	local weaponList = weapons.GetList()
+
+	for i = 1, #weaponList do
+		local weapon = weaponList[i]
+		if string.StartsWith(weapon.ClassName, "mg_") then
+			roundManage:AddWeaponToSpawnQueue(weapon.ClassName)
+			print(weapon.Primary.Ammo)
+			roundManage:AddAmmoToSpawnQueue(weapon.Primary.Ammo)
+		end
+	end
+
+	PrintTable(game.GetAmmoTypes())
 end)
 
 concommand.Add("rake_EndMatch", function(ply, cmd, args, str)
 	if not ply:IsSuperAdmin() or adminManager:PlayerIsAdmin(ply:SteamID64()) then return end
-	roundManage:EndRound(REASON_DEATHS)
+	roundManage:EndRound(REASON_ROUNDCOMPLETE)
 end)
 
 hook.Add("PlayerSetModel", "RakePlayerModel", function(ply) ply:SetModel("models/player/combine_soldier.mdl") end)
+
 hook.Add("Initialize", "RakeDRGBaseSettings", function()
 	RunConsoleCommand("drgbase_ai_radius", 797)
 	RunConsoleCommand("drgbase_ai_patrol", 1)
 	RunConsoleCommand("drgbase_ai_sight", 0)
 	RunConsoleCommand("drgbase_ai_hearing", 1)
+	RunConsoleCommand("mgbase_sv_customization", 0)
+	RunConsoleCommand("fpsfog_active", 0)
 end)
 
 hook.Add("PlayerInitialSpawn", "AdminCheckAndEtc", function(ply)
