@@ -15,6 +15,7 @@ roundManager = roundManager or {
 	Players = {},
 	RoundStartTime = 5,
 	RakeEntity = nil,
+	EnemyTimer = nil,
 
 	RoundStartCallback = function() end,
 	RoundEndCallback = function() end
@@ -59,9 +60,12 @@ function roundManager:ModifyStatus(status)
 	if status == IN_LOBBY then
 		InRound = false
 		self:RoundEndCallback()
+
+		PrintMessage(HUD_PRINTCENTER, "Round Commensing...")
 	elseif status == IN_MATCH then
 		InRound = true
 		self:RoundStartCallback()
+		PrintMessage(HUD_PRINTCENTER, "Round Beginning...")
 	end
 end
 
@@ -72,6 +76,8 @@ end
 // start the round, reset the players and get them ready with weaponry.
 function roundManager:StartRound()
 	if self:GetRoundStatus() == IN_MATCH then return end
+
+	RunConsoleCommand("gmod_admin_cleanup")
 
 	InRound = true
 
@@ -89,19 +95,32 @@ function roundManager:StartRound()
 
 		timer.Simple(5, function()
 			v:UnLock()
+
+			local navAreas = navmesh.GetAllNavAreas()
+			local randomSpawn = math.floor(math.random(1, #navAreas + 1))
+
+			local rake = ents.Create("drg_sf2_rake_byleenux55")
+
+			rake:SetPos(navAreas[randomSpawn]:GetRandomPoint())
+			rake:Spawn()
+
+			self.RakeEntity = rake
+
+			self:ModifyStatus(IN_MATCH)
 		end)
 
-		local navAreas = navmesh.GetAllNavAreas()
-		local randomSpawn = math.floor(math.random(1, #navAreas + 1))
 
-		local rake = ents.Create("drg_sf2_rake_byleenux55")
+			print("starting EnemyTimer")
+			self.EnemyTimer = timer.Create("CreateSoldierEnemies", 10, -1, function()
+				local navAreas = navmesh.GetAllNavAreas()
+				local randomSpawn = math.floor(math.random(1, #navAreas + 1))
 
-		rake:SetPos(navAreas[randomSpawn]:GetRandomPoint())
-		rake:Spawn()
+				local soldier = ents.Create("npc_combine_s")
 
-		self.RakeEntity = rake
-
-		self:ModifyStatus(IN_MATCH)
+				soldier:SetPos(navAreas[randomSpawn]:GetRandomPoint())
+				soldier:Give("weapon_shotgun")
+				soldier:Spawn()
+			end)
 	end
 
 	self:RoundStartCallback()
@@ -109,18 +128,16 @@ end
 
 function roundManager:EndRound(reason)
 	// Cleanup the current round
-	InRound = false
-
-	self:ModifyStatus(IN_LOBBY)	//we're back in lobby
-	self:RoundEndCallback()			// call the end round callback (for custom stuff)
 
 	// check the reason the game ended
 	if reason == REASON_DEATHS then
 		PrintMessage(HUD_PRINTCENTER, "Too many players have died. Ending in 5 seconds.")
+	else
+		PrintMessage(HUD_PRINTCENTER, "Report in team. Round over.")
 	end
 
-	timer.Create(5, function()
-		roundManager:ModifyStatus(IN_LOBBY)
+	timer.Simple(5, function()
+		self:ModifyStatus(IN_LOBBY)
 
 		for _, v in pairs(player.GetAll()) do
 			v:Spawn()
@@ -132,6 +149,7 @@ function roundManager:EndRound(reason)
 
 		self.RakeEntity:Remove()
 		self.RakeEntity = nil
+		timer.Remove("CreateSoldierEnemies")
 
 		// Run a final cleanup
 		RunConsoleCommand("gmod_admin_cleanup")
