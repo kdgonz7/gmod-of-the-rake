@@ -319,16 +319,8 @@ function roundManager:StartRound()
 			rake:SetPos(rake:GetPos() + Vector(0, 0, 100))
 
 			rake.OnStuck = function(self)
-				local badpositions = rake.BadPositions or {}
 				local randon = math.floor(math.random(1, #AiNodes))
 				local point = AiNodes[randon]
-				// local second_iterator = 1
-				for _, x in pairs(badpositions) do
-					if x == point then
-						self:OnStuck()
-						return
-					end
-				end
 
 				rake:SetPos(point)
 				rake:SetPos(rake:GetPos() + Vector(0, 0, 100))
@@ -349,6 +341,8 @@ function roundManager:StartRound()
 				local p = self:SelectRandomPlayer()
 				// the lucky person! hehehehe
 
+				if ! p then return end
+
 				if p:Alive() then /* spawn right on top of em */
 					local around = FindClosestNode(p:GetPos())
 
@@ -366,10 +360,15 @@ function roundManager:StartRound()
 				ammo:SetPos(navAreas[randomSpawn2]:GetRandomPoint())
 				ammo:Spawn()
 
-				local ind = FindBestIndex(self.AmmoCache, 10)
-				self.AmmoCache[ind] = ammo
+				self.AmmoCache[#self.AmmoCache + 1] = ammo
 
-				self.AmmoCache = {}
+				if #self.AmmoCache > 10 then
+					local remove = table.remove(self.AmmoCache, 1)
+
+					if IsValid(remove) then
+						remove:Remove()
+					end
+				end
 			end)
 	end
 
