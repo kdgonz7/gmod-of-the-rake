@@ -90,7 +90,7 @@ roundManager = roundManager or {
 }
 
 AiNodes = AiNodes or nil
-navAreas = navAreas or navmesh.GetAllNavAreas()
+navAreas = navAreas or nil
 
 function roundManager:Initialize()
 	return self

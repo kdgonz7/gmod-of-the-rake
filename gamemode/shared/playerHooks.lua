@@ -7,10 +7,12 @@ end
 
 hook.Add("InitPostEntity", "RakeGetnodes", function()
 	if not AiNodes then
+		print("prep ainodes")
 		AiNodes = ainGetAllNodePositions()
 	end
 
-	if not navmesh then
+	if not navAreas then
+		print("prep navmesh")
 		navAreas = navmesh.GetAllNavAreas()
 	end
 end)

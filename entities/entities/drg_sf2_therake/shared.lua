@@ -157,12 +157,6 @@ if SERVER then
 		damage_taken = damage_taken + dmg:GetDamage()
 
 		self:SetNW2Entity("DrGBaseEnemy", nil)
-		local runDirection = self:RandomPos(1500)
-		coroutine.wrap(function()
-			self:MoveToPos(runDirection)
-		end)()
-
-		running = true
 
 		if damage_taken >= threshold then
 			-- teleport to a random area
