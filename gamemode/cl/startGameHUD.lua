@@ -32,8 +32,7 @@ net.Receive("startgamehud", function(len)
 			Button:SetSize( 150, 30 )
 			Button:SetText( "Start Game" )
 			Button.DoClick = function()
-				net.Start("startgame")
-				net.SendToServer()
+				RunConsoleCommand("rake_StartGame")
 			end
 
 
