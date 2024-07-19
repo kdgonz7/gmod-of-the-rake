@@ -15,37 +15,6 @@ REASON_WINNER = 1
 */
 
 /*
-	FindBestIndex(l, f)
-			Finds the first index in l that is nil.
-			If no index is nil, it will remove the first element.
-			Will return 0 if all elements in l are nil.
-
-	Best case; O(1)
-	Worst case; O(n)
-*/
-local function FindBestIndex(list, floor)
-	local goodIndex = 0
-	local i = 0
-
-	while i <= floor do
-		if list[i] == nil then
-			goodIndex = i
-			break
-		end
-
-		if i == floor then
-			list[1]:Remove()
-			table.remove(list, 1)
-			i = 0
-		end
-
-		i = i + 1
-	end
-
-	return goodIndex
-end
-
-/*
 	roundManager class
 */
 roundManager = roundManager or {
