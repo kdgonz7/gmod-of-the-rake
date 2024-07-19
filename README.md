@@ -14,6 +14,8 @@ The rake is fast and stronger than you might think, to fight it you need to be p
 
 ## How to play
 
+For each version, it is recommended to stay up to date on the [Requirement Collection](https://steamcommunity.com/sharedfiles/filedetails/?id=3292769727)
+
 ### v0.0.1 (current)
 
 To play the actual game, you need to have a NavMesh in your map. 
