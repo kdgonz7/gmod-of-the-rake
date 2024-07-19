@@ -52,7 +52,10 @@ end
 roundManager = roundManager or {
 	InRound = false,
 	TimeLeft = 0,
+
 	Players = {},
+	DeadPlayers = {},
+
 	RoundStartTime = 5,
 
 	RakeEntity = nil,
@@ -83,6 +86,8 @@ roundManager = roundManager or {
 	RoundStartCallback = function() end,
 	RoundEndCallback = function() end
 }
+
+AiNodes = {}
 
 function roundManager:Initialize()
 	return self
@@ -170,6 +175,53 @@ function roundManager:SelectRandomAmmo()
 	return ammo
 end
 
+function roundManager:SelectRandomPlayer()
+	if #self.Players == 0 then
+		return nil
+	end
+
+	local index = math.random(1, #self.Players)
+
+	return self.Players[index]
+end
+
+function roundManager:ClearDeadPlayers()
+	self.DeadPlayers = {}
+end
+
+function roundManager:RemoveDeadPlayer(player)
+	for k, v in pairs(self.DeadPlayers) do
+		if v == player then
+			table.remove(self.DeadPlayers, k)
+		end
+	end
+end
+
+// remove player from alive array and add to dead
+function roundManager:RegisterDead(player)
+	for k, v in pairs(self.Players) do
+		if v == player then
+			table.remove(self.Players, k)
+			break
+		end
+	end
+
+	self.DeadPlayers[#self.DeadPlayers + 1] = player
+end
+
+function roundManager:ResetAllPlayers()
+	for k, v in pairs(self.Players) do
+		v:UnLock()
+		v:Spawn()
+	end
+
+	for k, v in pairs(self.DeadPlayers) do
+		v:UnSpectate()
+		v:Spawn()
+
+		table.remove(self.DeadPlayers, k)
+	end
+end
 /* 
 	Rounds
 */
@@ -193,6 +245,22 @@ function roundManager:ModifyStatus(status)
 
 		self.GameState:SetString("match")
 	end
+end
+
+function FindClosestNode(toPosition)
+	if ! AiNodes then return end
+
+	local closest = nil
+
+	for _, v in pairs(AiNodes) do
+		local distance = v:Distance(toPosition)
+
+		if !closest or distance < closest:Distance(toPosition) then
+			closest = v
+		end
+	end
+
+	return closest
 end
 
 // start the round, reset the players and get them ready with weaponry.
@@ -237,16 +305,18 @@ function roundManager:StartRound()
 
 			local rake = ents.Create("drg_sf2_therake")
 
-			rake:SetPos(navAreas[randomSpawn]:GetRandomPoint())
+			AiNodes = ainGetAllNodePositions()
+
+			local randSpawn = math.floor(math.random(1, #AiNodes))
+
+			rake:SetPos(AiNodes[randSpawn])
 			rake:SetPos(rake:GetPos() + Vector(0, 0, 100))
+
 			rake.OnStuck = function(self)
-				local navArea = navmesh.GetAllNavAreas()
-				local randomSpaw = math.floor(math.random(1, #navAreas))
-
 				local badpositions = rake.BadPositions or {}
-
-				local point = navArea[randomSpaw]:GetRandomPoint()
-				-- local second_iterator = 1
+				local randon = math.floor(math.random(1, #AiNodes))
+				local point = AiNodes[randon]
+				// local second_iterator = 1
 				for _, x in pairs(badpositions) do
 					if x == point then
 						self:OnStuck()
@@ -266,8 +336,22 @@ function roundManager:StartRound()
 
 			self:ModifyStatus(IN_MATCH)
 		end)
-			timer.Create("RandomWeaponSpawns", 10, -1, function()
 
+		timer.Create("FindSomeoneToKill", 15, -1, function()
+				if ! self.RakeEntity then return end
+
+				local p = self:SelectRandomPlayer()
+				// the lucky person! hehehehe
+
+				if p:Alive() then /* spawn right on top of em */
+					local around = FindClosestNode(p:GetPos())
+
+					self.RakeEntity:SetPos(around)
+					self.RakeEntity:SetNW2Entity("DrGBaseEnemy", p)
+				end
+			end)
+
+		timer.Create("RandomWeaponSpawns", 10, -1, function()
 				local ammo = ents.Create("sent_xdest_loot")
 
 				local navAreas = navmesh.GetAllNavAreas()
@@ -302,17 +386,7 @@ function roundManager:EndRound(reason)
 	timer.Simple(5, function()
 		self:ModifyStatus(IN_LOBBY)
 
-		for _, v in pairs(self.Players) do
-			v:UnLock()
-			v:StripWeapons()
-			v:RemoveAllAmmo()
-			v:Spawn()
-
-
-			if reason == REASON_DEATHS or v:GetObserverTarget() ~= nil then
-				v:UnSpectate()
-			end
-		end
+		self:ResetAllPlayers()
 
 		if self.RakeEntity:IsValid() then
 			self.RakeEntity:Remove()
@@ -320,6 +394,7 @@ function roundManager:EndRound(reason)
 		end
 
 		timer.Remove("RandomWeaponSpawns")
+		timer.Remove("FindSomeoneToKill")
 
 		self.WeaponsInMap = 0
 		self.AmmoCache = {}
