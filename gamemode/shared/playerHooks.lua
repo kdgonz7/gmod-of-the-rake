@@ -72,13 +72,13 @@ hook.Add("PlayerSpawn", "RakeSpawnPlayer", function(ply)
 	ply.WeaponClass = "Assault"	// assault gives a M4A1, and a Renetti
 
 	ply:RemoveAllAmmo()
+	ply:StripWeapons()
 
 	if roundManage:GetRoundStatus() == IN_LOBBY then
 		// We'll give them a pistol to fight their friends :)
 		ply:Give("mg_m1911")
 		ply:GiveAmmo(550, "Pistol", true)
 		ply:GodEnable()
-	else
 	end
 end)
 
@@ -98,7 +98,7 @@ hook.Add("PlayerDeath", "RakeRespawn", function(ply, inflictor, attacker)
 		// separately.
 		return nil
 	elseif roundManage:GetRoundStatus() == IN_MATCH then
-		roundManage:RemovePlayerFromCache(ply)
+		roundManage:RegisterDead(ply)
 		if roundManage:NoPlayersLeft() then roundManage:EndRound(REASON_DEATHS) end
 
 		ply:Spectate(5)
