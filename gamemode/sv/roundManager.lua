@@ -73,6 +73,7 @@ roundManager = roundManager or {
 	ArmorEnabled = CreateConVar("rake_ArmorEnabled", 1, FCVAR_REPLICATED, "Enable or disable armor. 1 = enabled, 0 = disabled."),
 	FogEnabled = CreateConVar("rake_FogEnabled", 1, FCVAR_REPLICATED, "Enable or disable fog. 1 = enabled, 0 = disabled."),
 	Difficulty = CreateConVar("rake_Difficulty", 1, FCVAR_REPLICATED, "Difficulty. 0 = easy, 1 = normal, 2 = hard"),
+	UseForTracking = CreateConVar("rake_UseForTracking", "ainodes", FCVAR_REPLICATED, "Which method should be used to spawn rake? navmesh or ainodes. note: navmesh is more likely to get rake stuck initially"),
 
 	WeaponClasses = {
 		["Assault"] = {
@@ -89,6 +90,7 @@ roundManager = roundManager or {
 }
 
 AiNodes = AiNodes or nil
+navAreas = navAreas or navmesh.GetAllNavAreas()
 
 function roundManager:Initialize()
 	return self
@@ -137,6 +139,15 @@ function roundManager:RemovePlayerFromCache(player)
 		if v == player then
 			table.remove(roundManager.Players, k)
 		end
+	end
+end
+
+
+function GetRandomPointInMap(typ)
+	if typ == "navmesh" then
+		return navAreas[math.random(1, #navAreas)]:GetRandomPoint()
+	elseif typ == "ainodes" then
+		return AiNodes[math.random(1, #AiNodes)]
 	end
 end
 
@@ -301,33 +312,16 @@ function roundManager:StartRound()
 		end
 
 		timer.Simple(5, function()
-			local navAreas = navmesh.GetAllNavAreas()
-			local randomSpawn = math.floor(math.random(1, #navAreas))
-
 			local rake = ents.Create("drg_sf2_therake")
 
-			if ! AiNodes then
-				AiNodes = ainGetAllNodePositions()
-			end
-
-			local randSpawn = math.floor(math.random(1, #AiNodes))
+			local randSpawn = GetRandomPointInMap(self.UseForTracking:GetString())
 
 			rake.RunSpeed = 500 * self.Difficulty:GetInt()
 			rake.SpawnHealth = 10000 * self.Difficulty:GetInt()
 
-			rake:SetPos(AiNodes[randSpawn])
+			rake:SetPos(randSpawn)
 			rake:SetPos(rake:GetPos() + Vector(0, 0, 100))
 
-			rake.OnStuck = function(self)
-				local randon = math.floor(math.random(1, #AiNodes))
-				local point = AiNodes[randon]
-
-				rake:SetPos(point)
-				rake:SetPos(rake:GetPos() + Vector(0, 0, 100))
-
-				self.loco:ClearStuck()
-
-			end
 			rake:Spawn()
 
 			self.RakeEntity = rake
@@ -335,11 +329,10 @@ function roundManager:StartRound()
 			self:ModifyStatus(IN_MATCH)
 		end)
 
-		timer.Create("FindSomeoneToKill", 15, -1, function()
+		timer.Create("FindSomeoneToKill", 22, -1, function()
 				if ! self.RakeEntity then return end
 
 				local p = self:SelectRandomPlayer()
-				// the lucky person! hehehehe
 
 				if ! p then return end
 
@@ -351,23 +344,24 @@ function roundManager:StartRound()
 				end
 			end)
 
-		timer.Create("RandomWeaponSpawns", 10, -1, function()
+			timer.Create("SpawnSupplies", 20, -1, function()
 				local ammo = ents.Create("sent_xdest_loot")
 
-				local navAreas = navmesh.GetAllNavAreas()
-				local randomSpawn2 = math.floor(math.random(1, #navAreas))
+				local randomSpawn2 = GetRandomPointInMap(self.UseForTracking:GetString())
 
-				ammo:SetPos(navAreas[randomSpawn2]:GetRandomPoint())
+				ammo:SetPos(randomSpawn2)
 				ammo:Spawn()
 
 				self.AmmoCache[#self.AmmoCache + 1] = ammo
 
 				if #self.AmmoCache > 10 then
-					local remove = table.remove(self.AmmoCache, 1)
-
-					if IsValid(remove) then
-						remove:Remove()
+					for _, z in ipairs(self.AmmoCache) do
+						z:Remove()
 					end
+
+					PrintMessage(HUD_PRINTCENTER, "Clearing out loot...")
+				else
+					PrintMessage(HUD_PRINTCENTER, "Loot has spawned!")
 				end
 			end)
 	end
@@ -398,8 +392,8 @@ function roundManager:EndRound(reason)
 			self.RakeEntity = nil
 		end
 
-		timer.Remove("RandomWeaponSpawns")
 		timer.Remove("FindSomeoneToKill")
+		timer.Remove("SpawnSupplies")
 
 		self.WeaponsInMap = 0
 		self.AmmoCache = {}
