@@ -1,0 +1,19 @@
+"VertexLitGeneric"
+{
+	"$baseTexture" "models/zombie_fast/rake"
+	"$bumpmap" "Models/zombie_fast/rake_normal"
+                "$selfillum" "1"
+	"$selfillummask" "models/zombie_fast/rake_glow"
+	"$surfaceprop" "flesh"
+	"$halflambert" "1"
+	
+	"$phong" "1"
+	"$phongboost" "2"
+	"$phongexponent" "8"
+	"$phongtint" "[1.0 0.7 0.5]"
+	"$phongfresnelranges"	"[.1 .3 1]"
+	
+	"$rimlight" "1"
+	"$rimlightexponent" "8"
+	"$rimlightboost" "2"
+}
