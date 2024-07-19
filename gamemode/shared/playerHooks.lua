@@ -127,6 +127,15 @@ hook.Add("PlayerCanPickupWeapon", "RakeAmmoCheck", function (ply, wep)
 	return true
 end)
 
+util.AddNetworkString("startgamehud")
+
+hook.Add("KeyPress", "RakeStartGameHUD", function(ply, key)
+	if key == IN_USE then
+		net.Start("startgamehud")
+		net.Send(ply)
+	end
+end)
+
 hook.Add("PlayerNoClip", "NoNoClip", function(ply, des) return false end)
 
 print("loaded player hooks")
