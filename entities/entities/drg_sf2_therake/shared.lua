@@ -81,7 +81,7 @@ ENT.PossessionBinds = {
 	}
 }
 
-local threshold = 1000
+local threshold = 500
 local damage_taken = 0
 
 function ENT:Termaattack1()
@@ -156,16 +156,8 @@ if SERVER then
 	function ENT:OnTakeDamage(dmg)
 		damage_taken = damage_taken + dmg:GetDamage()
 
-		self:SetNW2Entity("DrGBaseEnemy", nil)
-
 		if damage_taken >= threshold then
-			-- teleport to a random area
-			local cnav = navmesh.GetAllNavAreas()
-
-			local randomSpawn = math.floor(math.random(1, #cnav))
-
-			self:SetPos(cnav[randomSpawn]:GetRandomPoint())
-
+			self:SetNW2Entity("DrGBaseEnemy", nil)
 			damage_taken = 0
 		end
 	end
