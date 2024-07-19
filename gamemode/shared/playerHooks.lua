@@ -14,17 +14,6 @@ concommand.Add("rake_StartGame", function(ply, cmd, args, str)
 
 	roundManage:StartRound()
 
-	local weaponList = weapons.GetList()
-
-	for i = 1, #weaponList do
-		local weapon = weaponList[i]
-		if string.StartsWith(weapon.ClassName, "mg_") then
-			roundManage:AddWeaponToSpawnQueue(weapon.ClassName)
-			print(weapon.Primary.Ammo)
-			roundManage:AddAmmoToSpawnQueue(weapon.Primary.Ammo)
-		end
-	end
-
 	PrintTable(game.GetAmmoTypes())
 end)
 
@@ -59,7 +48,8 @@ hook.Add("Initialize", "RakeDRGBaseSettings", function()
 end)
 
 hook.Add("PlayerInitialSpawn", "AdminCheckAndEtc", function(ply)
-	print("Steam id: " .. ply:SteamID64())
+	ply.WeaponClass = "Assault"	// assault gives a M4A1, and a Renetti
+
 	if adminManager:PlayerIsAdmin(ply:SteamID64()) then
 		PrintMessage(HUD_PRINTCENTER, "Admin has joined!")
 	end
@@ -69,7 +59,6 @@ hook.Add("PlayerSpawn", "RakeSpawnPlayer", function(ply)
 	if not IsValid(ply) then return end
 	if not roundManager:FindPlayer(ply) then roundManager:AddPlayerObjectToCache(ply) end
 
-	ply.WeaponClass = "Assault"	// assault gives a M4A1, and a Renetti
 
 	ply:RemoveAllAmmo()
 	ply:StripWeapons()

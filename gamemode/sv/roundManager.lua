@@ -69,9 +69,11 @@ roundManager = roundManager or {
 	LastRakeKiller = nil,
 
 	GameState = CreateConVar("rake_GameState", "lobby", FCVAR_REPLICATED, "The state of the game. lobby, match, etc."),
-	FogEnabled = CreateConVar("rake_FogEnabled", 1, FCVAR_REPLICATED, "Enable or disable fog. 1 = enabled, 0 = disabled."),
 	EnemySpawnFrequency = CreateConVar("rake_EnemySpawnFrequency", 5, FCVAR_REPLICATED, "Frequency of enemy spawns."),
+
 	ArmorEnabled = CreateConVar("rake_ArmorEnabled", 1, FCVAR_REPLICATED, "Enable or disable armor. 1 = enabled, 0 = disabled."),
+	FogEnabled = CreateConVar("rake_FogEnabled", 1, FCVAR_REPLICATED, "Enable or disable fog. 1 = enabled, 0 = disabled."),
+
 
 	WeaponClasses = {
 		["Assault"] = {
@@ -87,7 +89,7 @@ roundManager = roundManager or {
 	RoundEndCallback = function() end
 }
 
-AiNodes = {}
+AiNodes = AiNodes or nil
 
 function roundManager:Initialize()
 	return self
@@ -253,9 +255,9 @@ function FindClosestNode(toPosition)
 	local closest = nil
 
 	for _, v in pairs(AiNodes) do
-		local distance = v:Distance(toPosition)
+		local distance = v:DistToSqr(toPosition)
 
-		if !closest or distance < closest:Distance(toPosition) then
+		if !closest or distance < closest:DistToSqr(toPosition) then
 			closest = v
 		end
 	end
@@ -305,7 +307,9 @@ function roundManager:StartRound()
 
 			local rake = ents.Create("drg_sf2_therake")
 
-			AiNodes = ainGetAllNodePositions()
+			if ! AiNodes then
+				AiNodes = ainGetAllNodePositions()
+			end
 
 			local randSpawn = math.floor(math.random(1, #AiNodes))
 
