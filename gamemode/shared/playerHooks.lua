@@ -102,7 +102,7 @@ hook.Add("PlayerDeath", "RakeRespawn", function(ply, inflictor, attacker)
 end)
 
 /*
-only allow one type of each weapon to be picked up
+	only allow one type of each weapon to be picked up
 */
 hook.Add("PlayerCanPickupWeapon", "RakeAmmoCheck", function (ply, wep)
 	local plyWeapons = ply:GetWeapons()
