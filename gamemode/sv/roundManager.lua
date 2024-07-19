@@ -8,7 +8,43 @@ IN_MATCH = 1
 
 /* reasons enum */
 REASON_DEATHS = 0
+REASON_WINNER = 1
 
+/*
+	Helper functions
+*/
+
+/*
+	FindBestIndex(l, f)
+			Finds the first index in l that is nil.
+			If no index is nil, it will remove the first element.
+			Will return 0 if all elements in l are nil.
+
+	Best case; O(1)
+	Worst case; O(n)
+*/
+function FindBestIndex(list, floor)
+	local goodIndex = 0;
+
+	local i = 0
+
+	while i <= floor do
+		if list[i] == nil then
+				goodIndex = i
+				break
+		end
+
+		if i == floor then
+				list[1]:Remove()
+				table.remove(list, 1)
+				i = 0
+		end
+
+		i = i + 1
+	end
+
+	return goodIndex
+end
 
 /*
 	roundManager class
@@ -20,11 +56,25 @@ roundManager = roundManager or {
 	RoundStartTime = 5,
 
 	RakeEntity = nil,
+	RakeBadPositions = {},
 
 	WeaponSpawnList = {},
 	AmmoSpawnList = {},
 
 	AmmoCache = {},
+
+	LastRakeKiller = nil,
+
+	GameState = CreateConVar("rake_GameState", "lobby", FCVAR_REPLICATED, "The state of the game. lobby, match, etc."),
+	FogEnabled = CreateConVar("rake_FogEnabled", 1, FCVAR_REPLICATED, "Enable or disable fog. 1 = enabled, 0 = disabled."),
+	EnemySpawnFrequency = CreateConVar("rake_EnemySpawnFrequency", 5, FCVAR_REPLICATED, "Frequency of enemy spawns."),
+
+	WeaponClasses = {
+		["Assault"] = {
+			{"mg_acharlie", "AR2", 210},
+			{ "mg_m9", "Pistol", 50}
+		}
+	},
 
 	WeaponsInMap = 0,
 	WeaponSpawnRoof = 10,
@@ -35,6 +85,20 @@ roundManager = roundManager or {
 
 function roundManager:Initialize()
 	return self
+end
+
+function roundManager:IsAKnownBadPosition(position)
+	for k, v in pairs(self.RakeBadPositions) do
+		if v == position then
+			return true
+		end
+	end
+	return false
+end
+
+function roundManager:AddBadPosition(position)
+	if self:IsAKnownBadPosition(position) then return end
+	self.RakeBadPositions[#self.RakeBadPositions + 1] = position
 end
 
 /*
@@ -118,12 +182,15 @@ function roundManager:ModifyStatus(status)
 	if status == IN_LOBBY then
 		InRound = false
 		self:RoundEndCallback()
-
 		PrintMessage(HUD_PRINTCENTER, "Round Commensing...")
+
+		self.GameState:SetString("lobby")
 	elseif status == IN_MATCH then
 		InRound = true
 		self:RoundStartCallback()
 		PrintMessage(HUD_PRINTCENTER, "Round Beginning...")
+
+		self.GameState:SetString("match")
 	end
 end
 
@@ -131,93 +198,79 @@ end
 function roundManager:StartRound()
 	if self:GetRoundStatus() == IN_MATCH then return end
 
-	RunConsoleCommand("fpsfog_active", 1)
-	RunConsoleCommand("fpsfog_color_r", 30)
-	RunConsoleCommand("fpsfog_color_g", 30)
-	RunConsoleCommand("fpsfog_color_b", 30)
-	RunConsoleCommand("fpsfog_distance", 300)
-	RunConsoleCommand("fpsfog_thickness", 50	)
+	if self.FogEnabled:GetBool() then
+		RunConsoleCommand("fpsfog_active", 1)
+		RunConsoleCommand("fpsfog_color_r", 30)
+		RunConsoleCommand("fpsfog_color_g", 30)
+		RunConsoleCommand("fpsfog_color_b", 30)
+		RunConsoleCommand("fpsfog_distance", 1000)
+		RunConsoleCommand("fpsfog_thickness", 50	)
+	else
+		RunConsoleCommand("fpsfog_active", 0)
+	end
 
 	RunConsoleCommand("gmod_admin_cleanup")
-
-	InRound = true
 
 	self:ModifyStatus(IN_MATCH)
 
 	PrintMessage(HUD_PRINTCENTER, "Round starting in 5 seconds...")
 
-	for _, v in pairs(player.GetAll()) do
+	for _, v in pairs(self.Players) do
 		v:StripWeapons()
 		v:StripAmmo()
 
 		v:Spawn()
-		v:Lock()
 
+		for _, x in ipairs(self.WeaponClasses[v.WeaponClass]) do
+			v:Give(x[1])
+			v:GiveAmmo(x[3], x[2])
+		end
 
 		timer.Simple(5, function()
-			v:UnLock()
-
 			local navAreas = navmesh.GetAllNavAreas()
-			local randomSpawn = math.floor(math.random(1, #navAreas + 1))
+			local randomSpawn = math.floor(math.random(1, #navAreas))
 
-			local rake = ents.Create("drg_sf2_rake_byleenux55")
+			local rake = ents.Create("drg_sf2_therake")
 
 			rake:SetPos(navAreas[randomSpawn]:GetRandomPoint())
+			rake:SetPos(rake:GetPos() + Vector(0, 0, 100))
+			rake.OnStuck = function()
+				local navArea = navmesh.GetAllNavAreas()
+				local randomSpaw = math.floor(math.random(1, #navAreas))
+
+				self:AddBadPosition(rake:GetPos())
+
+				rake:SetPos(navArea[randomSpaw]:GetRandomPoint())
+				rake:SetPos(rake:GetPos() + Vector(0, 0, 100))
+
+				if self:IsAKnownBadPosition(rake:GetPos()) then
+					rake:OnStuck()
+					return
+				end
+
+				self.loco:ClearStuck()
+
+			end
 			rake:Spawn()
 
 			self.RakeEntity = rake
 
 			self:ModifyStatus(IN_MATCH)
 		end)
-			timer.Create("CreateSoldierEnemies", 10, -1, function()
-				local navAreas = navmesh.GetAllNavAreas()
-				local randomSpawn = math.floor(math.random(1, #navAreas + 1))
-
-				local soldier = ents.Create("npc_combine_s")
-
-				soldier:SetPos(navAreas[randomSpawn]:GetRandomPoint())
-				soldier:Give("weapon_shotgun")
-				soldier:Spawn()
-			end)
-
 			timer.Create("RandomWeaponSpawns", 10, -1, function()
-				if (#self.AmmoCache >= self.WeaponSpawnRoof) then
-					for _, x in pairs(self.AmmoCache) do
-						if IsValid(x) then
-							x:Remove()
-						end
-					end
-				end
-
-				if self.WeaponsInMap >= self.WeaponSpawnRoof then return end
-
-				local navAreas = navmesh.GetAllNavAreas()
-				local randomSpawn = math.floor(math.random(1, #navAreas + 1))
-
-				local ra = self:SelectRandomWeapon()
-
-				if !ra then return end
-
-				local weapon = ents.Create(ra)
-
-				weapon:SetPos(navAreas[randomSpawn]:GetRandomPoint())
-				weapon:Spawn()
-
-				print(self:SelectRandomAmmo())
 
 				local ammo = ents.Create("sent_xdest_loot")
 
-				local randomSpawn2 = math.floor(math.random(1, #navAreas + 1))
-
+				local navAreas = navmesh.GetAllNavAreas()
+				local randomSpawn2 = math.floor(math.random(1, #navAreas))
 
 				ammo:SetPos(navAreas[randomSpawn2]:GetRandomPoint())
 				ammo:Spawn()
 
-				self.AmmoCache[#self.AmmoCache + 1] = ammo
+				local ind = FindBestIndex(self.AmmoCache, 10)
+				self.AmmoCache[ind] = ammo
 
 				self.AmmoCache = {}
-
-				self.WeaponsInMap = self.WeaponsInMap + 1
 			end)
 	end
 
@@ -231,6 +284,8 @@ function roundManager:EndRound(reason)
 	// check the reason the game ended
 	if reason == REASON_DEATHS then
 		PrintMessage(HUD_PRINTCENTER, "Too many players have died. Ending in 5 seconds.")
+	elseif reason == REASON_WINNER then
+		PrintMessage(HUD_PRINTCENTER, self.LastRakeKiller:Nick() .. ": Report! Creature Down!")
 	else
 		PrintMessage(HUD_PRINTCENTER, "Report in team. Round over.")
 	end
@@ -238,21 +293,28 @@ function roundManager:EndRound(reason)
 	timer.Simple(5, function()
 		self:ModifyStatus(IN_LOBBY)
 
-		for _, v in pairs(player.GetAll()) do
+		for _, v in pairs(self.Players) do
+			v:UnLock()
+			v:StripWeapons()
+			v:RemoveAllAmmo()
 			v:Spawn()
 
-			if reason == REASON_DEATHS then
+
+			if reason == REASON_DEATHS or v:GetObserverTarget() ~= nil then
 				v:UnSpectate()
 			end
 		end
 
-		self.RakeEntity:Remove()
-		self.RakeEntity = nil
-
-		timer.Remove("CreateSoldierEnemies")
+		if self.RakeEntity:IsValid() then
+			self.RakeEntity:Remove()
+			self.RakeEntity = nil
+		end
 
 		timer.Remove("RandomWeaponSpawns")
+
 		self.WeaponsInMap = 0
+		self.AmmoCache = {}
+
 		// Run a final cleanup
 		RunConsoleCommand("gmod_admin_cleanup")
 	end)
