@@ -6,6 +6,12 @@
 A Garry's Mod gamemode where you have to kill the rake. The rake is very fast, and has a lot of health. So it's not smart to go alone, however, if you can kill it, you are rewarded as being
 the top soldier in your country.
 
+![rake](src/Rake%20Vid%2001.gif)
+
+The rake is fast and stronger than you might think, to fight it you need to be predicted, and articulated.
+
+![rak2](src/Rake%20Vid%2002.gif)
+
 ## How to play
 
 ### v0.0.1 (current)
