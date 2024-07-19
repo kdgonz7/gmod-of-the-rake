@@ -81,7 +81,7 @@ ENT.PossessionBinds = {
 	}
 }
 
-local threshold = 500
+local threshold = 250
 local damage_taken = 0
 
 function ENT:Termaattack1()
