@@ -316,6 +316,8 @@ function roundManager:StartRound()
 			timer.Create("SpawnSupplies", 20, -1, function()
 				local ammo = ents.Create("sent_xdest_loot")
 
+				if ! ammo then return end
+
 				local randomSpawn2 = GetRandomPointInMap(self.UseForTracking:GetString())
 
 				ammo:SetPos(randomSpawn2)
