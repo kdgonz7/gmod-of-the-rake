@@ -9,5 +9,8 @@ Uses [The Rake Nextbot](https://steamcommunity.com/sharedfiles/filedetails/?id=2
 ## Required Addons
 
 * Modern Warfare Base (and the other SWEPs, it spawns in range of however many you have)
-* Movement: Reworked (for realistic movement)
-* FPS Saving Fog (for scary fog)
+* FPS Saving Fog
+
+* Movement: Reworked (not required, but fun for realistic movement)
+* Alien: Isolation Motion Tracker (VManip) (not required, but you might need it)
+* Extended Flashlight
