@@ -5,6 +5,16 @@ for i = 1, #admins do
 	adminManager:AddAdmin(tostring(admins[i]))
 end
 
+hook.Add("InitPostEntity", "RakeGetnodes", function()
+	if not AiNodes then
+		AiNodes = ainGetAllNodePositions()
+	end
+
+	if not navmesh then
+		navAreas = navmesh.GetAllNavAreas()
+	end
+end)
+
 concommand.Add("rake_StartGame", function(ply, cmd, args, str)
 	if not ply:IsSuperAdmin() then return end
 	if roundManage:GetRoundStatus() ~= IN_LOBBY then
@@ -13,8 +23,6 @@ concommand.Add("rake_StartGame", function(ply, cmd, args, str)
 	end
 
 	roundManage:StartRound()
-
-	PrintTable(game.GetAmmoTypes())
 end)
 
 concommand.Add("rake_EndMatch", function(ply, cmd, args, str)
