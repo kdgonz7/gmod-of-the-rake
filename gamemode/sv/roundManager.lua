@@ -68,6 +68,7 @@ roundManager = roundManager or {
 	GameState = CreateConVar("rake_GameState", "lobby", FCVAR_REPLICATED, "The state of the game. lobby, match, etc."),
 	FogEnabled = CreateConVar("rake_FogEnabled", 1, FCVAR_REPLICATED, "Enable or disable fog. 1 = enabled, 0 = disabled."),
 	EnemySpawnFrequency = CreateConVar("rake_EnemySpawnFrequency", 5, FCVAR_REPLICATED, "Frequency of enemy spawns."),
+	ArmorEnabled = CreateConVar("rake_ArmorEnabled", 1, FCVAR_REPLICATED, "Enable or disable armor. 1 = enabled, 0 = disabled."),
 
 	WeaponClasses = {
 		["Assault"] = {
@@ -226,6 +227,10 @@ function roundManager:StartRound()
 			v:GiveAmmo(x[3], x[2])
 		end
 
+		if self.ArmorEnabled:GetBool() then
+			v:SetArmor(100)
+		end
+
 		timer.Simple(5, function()
 			local navAreas = navmesh.GetAllNavAreas()
 			local randomSpawn = math.floor(math.random(1, #navAreas))
@@ -234,19 +239,23 @@ function roundManager:StartRound()
 
 			rake:SetPos(navAreas[randomSpawn]:GetRandomPoint())
 			rake:SetPos(rake:GetPos() + Vector(0, 0, 100))
-			rake.OnStuck = function()
+			rake.OnStuck = function(self)
 				local navArea = navmesh.GetAllNavAreas()
 				local randomSpaw = math.floor(math.random(1, #navAreas))
 
-				self:AddBadPosition(rake:GetPos())
+				local badpositions = rake.BadPositions or {}
 
-				rake:SetPos(navArea[randomSpaw]:GetRandomPoint())
-				rake:SetPos(rake:GetPos() + Vector(0, 0, 100))
-
-				if self:IsAKnownBadPosition(rake:GetPos()) then
-					rake:OnStuck()
-					return
+				local point = navArea[randomSpaw]:GetRandomPoint()
+				-- local second_iterator = 1
+				for _, x in pairs(badpositions) do
+					if x == point then
+						self:OnStuck()
+						return
+					end
 				end
+
+				rake:SetPos(point)
+				rake:SetPos(rake:GetPos() + Vector(0, 0, 100))
 
 				self.loco:ClearStuck()
 
