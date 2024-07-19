@@ -23,21 +23,20 @@ REASON_WINNER = 1
 	Best case; O(1)
 	Worst case; O(n)
 */
-function FindBestIndex(list, floor)
-	local goodIndex = 0;
-
+local function FindBestIndex(list, floor)
+	local goodIndex = 0
 	local i = 0
 
 	while i <= floor do
 		if list[i] == nil then
-				goodIndex = i
-				break
+			goodIndex = i
+			break
 		end
 
 		if i == floor then
-				list[1]:Remove()
-				table.remove(list, 1)
-				i = 0
+			list[1]:Remove()
+			table.remove(list, 1)
+			i = 0
 		end
 
 		i = i + 1
@@ -73,7 +72,7 @@ roundManager = roundManager or {
 
 	ArmorEnabled = CreateConVar("rake_ArmorEnabled", 1, FCVAR_REPLICATED, "Enable or disable armor. 1 = enabled, 0 = disabled."),
 	FogEnabled = CreateConVar("rake_FogEnabled", 1, FCVAR_REPLICATED, "Enable or disable fog. 1 = enabled, 0 = disabled."),
-
+	Difficulty = CreateConVar("rake_Difficulty", 1, FCVAR_REPLICATED, "Difficulty. 0 = easy, 1 = normal, 2 = hard"),
 
 	WeaponClasses = {
 		["Assault"] = {
@@ -270,12 +269,12 @@ function roundManager:StartRound()
 	if self:GetRoundStatus() == IN_MATCH then return end
 
 	if self.FogEnabled:GetBool() then
-		RunConsoleCommand("fpsfog_active", 1)
+		RunConsoleCommand("fpsfog_active", self.Difficulty:GetInt())
 		RunConsoleCommand("fpsfog_color_r", 30)
 		RunConsoleCommand("fpsfog_color_g", 30)
 		RunConsoleCommand("fpsfog_color_b", 30)
-		RunConsoleCommand("fpsfog_distance", 1000)
-		RunConsoleCommand("fpsfog_thickness", 50	)
+		RunConsoleCommand("fpsfog_distance", 1000 / self.Difficulty:GetInt())
+		RunConsoleCommand("fpsfog_thickness", 50 * self.Difficulty:GetInt())
 	else
 		RunConsoleCommand("fpsfog_active", 0)
 	end
@@ -312,6 +311,9 @@ function roundManager:StartRound()
 			end
 
 			local randSpawn = math.floor(math.random(1, #AiNodes))
+
+			rake.RunSpeed = 500 * self.Difficulty:GetInt()
+			rake.SpawnHealth = 10000 * self.Difficulty:GetInt()
 
 			rake:SetPos(AiNodes[randSpawn])
 			rake:SetPos(rake:GetPos() + Vector(0, 0, 100))
