@@ -130,6 +130,8 @@ end)
 util.AddNetworkString("startgamehud")
 
 hook.Add("KeyPress", "RakeStartGameHUD", function(ply, key)
+	if not ply:IsSuperAdmin() or not adminManager:PlayerIsAdmin(ply:SteamID64()) then return end
+
 	if key == IN_USE then
 		net.Start("startgamehud")
 		net.Send(ply)
