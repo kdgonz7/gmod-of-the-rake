@@ -279,7 +279,7 @@ function roundManager:StartRound()
 		if self.ArmorEnabled:GetBool() then
 			v:SetArmor(100)
 		end
-
+	end
 		timer.Simple(5, function()
 			local rake = ents.Create("drg_sf2_therake")
 
@@ -335,8 +335,6 @@ function roundManager:StartRound()
 					PrintMessage(HUD_PRINTCENTER, "Loot has spawned!")
 				end
 			end)
-	end
-
 	self:RoundStartCallback()
 end
 
