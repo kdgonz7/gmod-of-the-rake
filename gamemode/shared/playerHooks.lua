@@ -46,6 +46,14 @@ end)
 
 hook.Add("PlayerSetModel", "RakePlayerModel", function(ply) ply:SetModel("models/player/combine_soldier.mdl") end)
 
+hook.Add("PlayerShouldTakeDamage", "RakePlayerShouldTakeDamage", function(ply, attacker)
+	if (attacker:IsPlayer()) then
+		return false
+	end
+
+	return true
+end)
+
 hook.Add("Initialize", "RakeDRGBaseSettings", function()
 	RunConsoleCommand("drgbase_ai_radius", 797)
 	RunConsoleCommand("drgbase_ai_patrol", 1)
@@ -55,6 +63,8 @@ hook.Add("Initialize", "RakeDRGBaseSettings", function()
 	RunConsoleCommand("fpsfog_active", 0)
 
 	roundManage:ModifyStatus(IN_LOBBY)
+
+	
 end)
 
 hook.Add("PlayerInitialSpawn", "AdminCheckAndEtc", function(ply)
