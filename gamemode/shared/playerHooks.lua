@@ -77,7 +77,6 @@ hook.Add("PlayerSpawn", "RakeSpawnPlayer", function(ply)
 	if not IsValid(ply) then return end
 	if not roundManager:FindPlayer(ply) then roundManager:AddPlayerObjectToCache(ply) end
 
-
 	ply:RemoveAllAmmo()
 	ply:StripWeapons()
 
@@ -86,6 +85,7 @@ hook.Add("PlayerSpawn", "RakeSpawnPlayer", function(ply)
 		ply:Give("mg_m1911")
 		ply:GiveAmmo(550, "Pistol", true)
 		ply:GodEnable()
+		ply:SelectWeapon("mg_m1911")
 	end
 end)
 
@@ -140,6 +140,13 @@ hook.Add("PlayerCanPickupWeapon", "RakeAmmoCheck", function (ply, wep)
 	end
 
 	return true
+end)
+
+hook.Add("PlayerSwitchWeapon", "RakeSpeedChange", function (ply, old, new)
+	if not ply:Alive() then return end
+
+	ply:SetWalkSpeed(roundManage["WalkSpeeds"][new:GetPrimaryAmmoType()][1])
+	ply:SetRunSpeed (roundManage["WalkSpeeds"][new:GetPrimaryAmmoType()][2])
 end)
 
 util.AddNetworkString("startgamehud")
