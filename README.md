@@ -16,7 +16,28 @@ The rake is fast and stronger than you might think, to fight it you need to be p
 
 For each version, it is recommended to stay up to date on the [Requirement Collection](https://steamcommunity.com/sharedfiles/filedetails/?id=3292769727)
 
-### v0.0.1 (current)
+### v0.0.1
+
+To play the actual game, you need to have a NavMesh in your map. 
+This means that the map owner, or you, have to build one.
+
+> ⚠️ AI Nodes are also required if you have `rake_UseForTracking` set to `ainodes`
+
+The DrGBase RAKE requires a navmesh in order to be able to walk 
+around and find you. Or your friends. However, a navmesh is *NOT* 
+required to spawn loot or the rake in the map.
+
+Both are recommended, as AI Nodes have less chances of getting the rake stuck when being spawned.
+But to configure this, use `rake_UseForTracking`.
+
+<hr>
+
+To start the game, type in `rake_StartGame` into the console or use the `E` key. (or whichever key you have binded to `USE`)
+
+> 📝 To end the match early, please use `rake_EndMatch`. do note in 
+> this version players are not allowed to join mid-game.
+
+### v0.0.2 (current)
 
 To play the actual game, you need to have a NavMesh in your map. 
 This means that the map owner, or you, have to build one.
