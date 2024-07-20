@@ -111,6 +111,10 @@ if SERVER then
 
 	-- AI --
 	function ENT:CustomThink()
+		if self.WAttacking and self:GetNW2Entity("DrGBaseEnemy") then
+			self:SetNW2Entity("DrGBaseEnemy", nil)
+		end
+		
 		for k, ball in pairs(ents.FindInSphere(self:LocalToWorld(Vector(0, 0, 75)), 50)) do
 			if IsValid(ball) then
 				if ball:GetClass() == "prop_door_rotating" then ball:Fire("open") end
