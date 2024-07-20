@@ -228,20 +228,46 @@ function roundManager:ModifyStatus(status)
 	end
 end
 
-function FindClosestNode(toPosition)
+function FindClosestNode(toPosition, depth)
 	if ! AiNodes then return end
 
-	local closest = nil
+	depth = depth or 1
+
+	local distances = {}
 
 	for _, v in pairs(AiNodes) do
-		local distance = v:DistToSqr(toPosition)
-
-		if !closest or distance < closest:DistToSqr(toPosition) then
-			closest = v
-		end
+			local distance = v:DistToSqr(toPosition)
+			table.insert(distances, { node = v, distance = distance })
 	end
 
-	return closest
+	local function partition(arr, low, high)
+			local pivot = arr[high].distance
+			local i = low
+			for j = low, high - 1 do
+					if arr[j].distance < pivot then
+							arr[i], arr[j] = arr[j], arr[i]
+							i = i + 1
+					end
+			end
+			arr[i], arr[high] = arr[high], arr[i]
+			return i
+	end
+
+	local function quickselect(arr, low, high, k)
+			if low <= high then
+					local pi = partition(arr, low, high)
+					if pi == k then
+							return arr[pi]
+					elseif pi < k then
+							return quickselect(arr, pi + 1, high, k)
+					else
+							return quickselect(arr, low, pi - 1, k)
+					end
+			end
+	end
+
+	local result = quickselect(distances, 1, #distances, depth)
+	return result and result.node or nil
 end
 
 // start the round, reset the players and get them ready with weaponry.
@@ -306,7 +332,7 @@ function roundManager:StartRound()
 				if ! p then return end
 
 				if p:Alive() then /* spawn right on top of em */
-					local around = FindClosestNode(p:GetPos())
+					local around = FindClosestNode(p:GetPos(), 3)
 
 					self.RakeEntity:SetPos(around)
 					self.RakeEntity:SetNW2Entity("DrGBaseEnemy", p)
