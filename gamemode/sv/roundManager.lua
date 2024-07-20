@@ -34,6 +34,13 @@ roundManager = roundManager or {
 
 	AmmoCache = {},
 
+	WalkSpeeds = {
+		[0] = { 250, 350 }, // Melee
+		[1] = { 160, 230 }, /* [Ammo ID] = { walk speed, run speed } */	// AR2
+		[3] = { 200, 300 }, // Pistol
+		[4] = { 130, 260 },	// SMG
+	},
+
 	LastRakeKiller = nil,
 
 	GameState = CreateConVar("rake_GameState", "lobby", FCVAR_REPLICATED, "The state of the game. lobby, match, etc."),
@@ -315,13 +322,13 @@ function roundManager:StartRound()
 
 			rake.RunSpeed = 500 * self.Difficulty:GetInt()
 			rake.SpawnHealth = 10000 * self.Difficulty:GetInt()
-
 			rake.OnStuck = function()
 				local att2 = GetRandomPointInMap(self.UseForTracking:GetString())
 
 				rake:SetPos(att2)
 				rake:SetPos(rake:GetPos() + Vector(0, 0, 100))
 			end
+
 			rake:SetPos(randSpawn)
 			rake:SetPos(rake:GetPos() + Vector(0, 0, 100))
 			rake:Spawn()
@@ -333,6 +340,7 @@ function roundManager:StartRound()
 
 		timer.Create("FindSomeoneToKill", 60, -1, function()
 				if ! self.RakeEntity then return end
+				if self.RakeEntity:GetNW2Entity("DrGBaseEnemy") then return end
 
 				local p = self:SelectRandomPlayer()
 
@@ -368,6 +376,8 @@ function roundManager:StartRound()
 					end
 
 					PrintMessage(HUD_PRINTCENTER, "Clearing out loot...")
+
+					self.AmmoCache = {}
 				else
 					PrintMessage(HUD_PRINTCENTER, "Loot has spawned!")
 				end
