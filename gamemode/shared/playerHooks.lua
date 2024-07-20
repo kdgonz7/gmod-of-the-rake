@@ -59,12 +59,10 @@ hook.Add("Initialize", "RakeDRGBaseSettings", function()
 	RunConsoleCommand("drgbase_ai_patrol", 1)
 	RunConsoleCommand("drgbase_ai_sight", 1)
 	RunConsoleCommand("drgbase_ai_hearing", 1)
-	RunConsoleCommand("mgbase_sv_customization", 0)
+	RunConsoleCommand("mgbase_sv_customization", 1)
 	RunConsoleCommand("fpsfog_active", 0)
 
 	roundManage:ModifyStatus(IN_LOBBY)
-
-	
 end)
 
 hook.Add("PlayerInitialSpawn", "AdminCheckAndEtc", function(ply)
@@ -108,6 +106,7 @@ hook.Add("PlayerDeath", "RakeRespawn", function(ply, inflictor, attacker)
 		return nil
 	elseif roundManage:GetRoundStatus() == IN_MATCH then
 		roundManage:RegisterDead(ply)
+
 		if roundManage:NoPlayersLeft() then roundManage:EndRound(REASON_DEATHS) end
 
 		ply:Spectate(5)
@@ -117,6 +116,13 @@ hook.Add("PlayerDeath", "RakeRespawn", function(ply, inflictor, attacker)
 		else
 			ply:SpectateEntity(roundManage.RakeEntity)
 		end
+
+		PrintMessage(HUD_PRINTCENTER, ply:Nick() .. " has been found! The rake awaits for its next victim")
+		inflictor.WAttacking = true
+
+		timer.Simple(10, function()
+			inflictor.WAttacking = false
+		end)
 		return 0
 	end
 end)
