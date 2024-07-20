@@ -302,6 +302,8 @@ function roundManager:StartRound()
 			v:GiveAmmo(x[3], x[2])
 		end
 
+		v:SelectWeapon(self.WeaponClasses[v.WeaponClass][1][1])
+
 		if self.ArmorEnabled:GetBool() then
 			v:SetArmor(100)
 		end
@@ -314,9 +316,14 @@ function roundManager:StartRound()
 			rake.RunSpeed = 500 * self.Difficulty:GetInt()
 			rake.SpawnHealth = 10000 * self.Difficulty:GetInt()
 
+			rake.OnStuck = function()
+				local att2 = GetRandomPointInMap(self.UseForTracking:GetString())
+
+				rake:SetPos(att2)
+				rake:SetPos(rake:GetPos() + Vector(0, 0, 100))
+			end
 			rake:SetPos(randSpawn)
 			rake:SetPos(rake:GetPos() + Vector(0, 0, 100))
-
 			rake:Spawn()
 
 			self.RakeEntity = rake
@@ -324,7 +331,7 @@ function roundManager:StartRound()
 			self:ModifyStatus(IN_MATCH)
 		end)
 
-		timer.Create("FindSomeoneToKill", 30, -1, function()
+		timer.Create("FindSomeoneToKill", 60, -1, function()
 				if ! self.RakeEntity then return end
 
 				local p = self:SelectRandomPlayer()
@@ -332,10 +339,12 @@ function roundManager:StartRound()
 				if ! p then return end
 
 				if p:Alive() then /* spawn right on top of em */
-					local around = FindClosestNode(p:GetPos(), 3)
+					local around = FindClosestNode(p:GetPos(), 7)
 
 					self.RakeEntity:SetPos(around)
 					self.RakeEntity:SetNW2Entity("DrGBaseEnemy", p)
+
+					PrintMessage(HUD_PRINTCENTER, "The Rake is on the loose!")
 				end
 			end)
 
@@ -353,7 +362,9 @@ function roundManager:StartRound()
 
 				if #self.AmmoCache > 10 then
 					for _, z in ipairs(self.AmmoCache) do
-						z:Remove()
+						if z:IsValid() then
+							z:Remove()
+						end
 					end
 
 					PrintMessage(HUD_PRINTCENTER, "Clearing out loot...")
