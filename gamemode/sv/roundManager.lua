@@ -324,7 +324,7 @@ function roundManager:StartRound()
 			self:ModifyStatus(IN_MATCH)
 		end)
 
-		timer.Create("FindSomeoneToKill", 22, -1, function()
+		timer.Create("FindSomeoneToKill", 30, -1, function()
 				if ! self.RakeEntity then return end
 
 				local p = self:SelectRandomPlayer()
