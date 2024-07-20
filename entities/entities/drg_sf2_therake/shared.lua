@@ -81,7 +81,7 @@ ENT.PossessionBinds = {
 	}
 }
 
-local threshold = 250
+local threshold = 300
 local damage_taken = 0
 
 function ENT:Termaattack1()
@@ -114,7 +114,7 @@ if SERVER then
 		if self.WAttacking and self:GetNW2Entity("DrGBaseEnemy") then
 			self:SetNW2Entity("DrGBaseEnemy", nil)
 		end
-		
+
 		for k, ball in pairs(ents.FindInSphere(self:LocalToWorld(Vector(0, 0, 75)), 50)) do
 			if IsValid(ball) then
 				if ball:GetClass() == "prop_door_rotating" then ball:Fire("open") end
@@ -162,6 +162,11 @@ if SERVER then
 
 		if damage_taken >= threshold then
 			self:SetNW2Entity("DrGBaseEnemy", nil)
+			local att2 = GetRandomPointInMap(roundManage.UseForTracking:GetString())
+			local rake = self
+			rake:SetPos(att2)
+			rake:SetPos(rake:GetPos() + Vector(0, 0, 100))
+
 			damage_taken = 0
 		end
 	end
