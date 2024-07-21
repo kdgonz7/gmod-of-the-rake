@@ -355,7 +355,6 @@ function roundManager:StartRound()
 
 		timer.Create("FindSomeoneToKill", 60, -1, function()
 				if ! self.RakeEntity then return end
-				if self.RakeEntity:GetNW2Entity("DrGBaseEnemy") then return end
 
 				local p = self:SelectRandomPlayer()
 
@@ -418,7 +417,7 @@ function roundManager:EndRound(reason)
 
 		self:ResetAllPlayers()
 
-		if self.RakeEntity:IsValid() then
+		if self.RakeEntity ~= nil then
 			self.RakeEntity:Remove()
 			self.RakeEntity = nil
 		end
