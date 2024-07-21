@@ -167,6 +167,13 @@ if SERVER then
 			rake:SetPos(att2)
 			rake:SetPos(rake:GetPos() + Vector(0, 0, 100))
 
+			local p = dmg:GetAttacker()
+
+			if p:IsPlayer() and p:Alive() then
+				p:PrintMessage(HUD_PRINTTALK, "+10 XP for deterring the rake")
+				dataBase:ModifyPlayerXP(p, 10)
+			end
+
 			damage_taken = 0
 		end
 	end
