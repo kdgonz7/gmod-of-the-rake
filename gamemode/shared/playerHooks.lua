@@ -14,6 +14,11 @@ hook.Add("InitPostEntity", "RakeGetnodes", function()
 	if not navAreas then
 		print("prep navmesh")
 		navAreas = navmesh.GetAllNavAreas()
+
+		if not navAreas
+		then
+			Derma_Message("This map does NOT have a navmesh! THE RAKE will not work properly.", "[ERROR]", "OK")
+		end
 	end
 end)
 
