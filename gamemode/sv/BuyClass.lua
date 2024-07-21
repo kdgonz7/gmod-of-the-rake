@@ -2,7 +2,7 @@ concommand.Add("rake_ChangeClass", function(ply, cmd, args, str)
 	if roundManage:GetRoundStatus() != IN_LOBBY then return end
 	if ! args[1] then return end
 
-	local myXP = ply:GetNWInt("XP")
+	local myXP = tonumber(ply:GetNWInt("XP"))
 
 	local requested_class =	string.lower(args[1])
 	if requested_class == nil then
@@ -25,8 +25,8 @@ concommand.Add("rake_ChangeClass", function(ply, cmd, args, str)
 		return
 	end
 
-	ply:SetNWInt("XP", myXP - req_class_requirement)
-	ply:SetNWString("WeaponClass", requested_class)
+	dataBase:ModifyPlayerXP(ply, -req_class_requirement)
+	dataBase:ModifyPlayerClass(ply, requested_class)
 
 	print("[Rake] changed class to " .. requested_class)
 end)
