@@ -29,6 +29,8 @@ SWEP.SlotPos			= 2
 SWEP.DrawAmmo			= false
 SWEP.DrawCrosshair		= true
 
+canSpawn = true
+
 function SWEP:Initialize()
 	self:SetHoldType("fists")
 end
@@ -71,17 +73,28 @@ function SWEP:PrimaryAttack()
 	if SERVER then
 		local owner = self:GetOwner()
 		local tr = owner:GetEyeTrace()
-		if tr.Hit and tr.HitPos:Distance(owner:GetPos()) <= 100 then
+		if tr.Hit and tr.HitPos:Distance(owner:GetPos()) <= 100 and canSpawn then
 			local ent = ents.Create("rake_viewtrap")
 
 			ent:SetPos(tr.HitPos)
 			ent:Spawn()
 
-			self:Remove()
+			canSpawn = false
 		end
 	end
 end
 
+function SWEP:SecondaryAttack()
+	if SERVER then
+		local owner = self:GetOwner()
+		local tr = owner:GetEyeTrace()
+
+		if tr.Hit and tr.Entity:GetClass() == "rake_viewtrap" then
+			canSpawn = true
+			tr.Entity:Remove()
+		end
+	end
+end
 
 function SWEP:Think()
 	if CLIENT and IsValid(self.PreviewEntity) then
