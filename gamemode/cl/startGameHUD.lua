@@ -1,11 +1,41 @@
+hook.Add("Initialize", "RakeAddFonts", function()
+	surface.CreateFont("MainUIFont", {
+		font = "Arial",
+		extended = false,
+		size = 21,
+		weight = 550,
+		blursize = 0,
+		scanlines = 0,
+		antialias = true,
+		underline = false,
+		italic = false,
+		strikeout = false,
+		symbol = false,
+		rotary = false,
+		shadow = false,
+		additive = false,
+		outline = false,
+	})
+end)
+
+local function DrawMultilineText(text, font, x, y, color, align)
+	surface.SetFont(font)
+
+	local w, h = surface.GetTextSize(text)
+	local y = y - h
+
+	draw.DrawText(text, font, x, y, color, align)
+end
+
 net.Receive("startgamehud", function(len)
 	if GetConVar("rake_GameState"):GetString() == "match" then return end
 		if not frame then
 			local frame = vgui.Create("DFrame")
-			local w = ScrW() * 0.5
-			local h = ScrH() * 0.5
+			local width = ScrW() * 0.5
+			local height = ScrH() * 0.5
 
-			frame:SetSize(w, h)
+
+			frame:SetSize(width, height)
 			frame:SetTitle("The Rake by Kai D.")
 
 			frame:SetVisible(true)
@@ -13,27 +43,37 @@ net.Receive("startgamehud", function(len)
 			frame:ShowCloseButton(true)
 			frame:SetDeleteOnClose(true)
 
+			frame.Paint = function(self, w, h)
+				draw.RoundedBox(5, 0, 0, w, h, Color(68, 68, 68))
+			end
+
 			frame:Center()
 			frame:MakePopup()
 
-			local startLabel = vgui.Create( "DLabel", frame )
-			startLabel:SetPos( 210, 100 )
-			startLabel:SetSize( 150, 30 )
-			startLabel:SetText( "Click start to start the game" )
+			local panel2 = vgui.Create( "DPanel", frame )
+			panel2:Dock( FILL)
+			panel2:DockMargin(0, 0, 0, 0)
+			panel2.Paint = function(self, w, h)
+				draw.RoundedBox(5, 0, 0, w, h, Color(68, 68, 68, 0))
+			end
 
-			local Panel = vgui.Create( "DPanel", frame )
-			Panel:SetPos( 10, 100 )
-			Panel:SetSize( 150, 150 )
+			DrawMultilineText("Welcome to the rake.", "MainUIFont", 10, 10, Color(255, 255, 255), 1)
+
+			local startLabel = vgui.Create( "DLabel", frame )
+			startLabel:SetText( "Click start to start the game" )
+			startLabel:SetFont("MainUIFont")
+			startLabel:SetPos(200, 100)
+			startLabel:SetSize(500, 50)
 
 			local Button = vgui.Create( "DButton", frame )
 			Button:SetPos( 210, 150 )
-			Button:SetSize( 150, 30 )
 			Button:SetText( "Start Game" )
+			Button:Center()
 			Button.DoClick = function()
 				RunConsoleCommand("rake_StartGame")
 				frame:Close()
 			end
-
-
-	end
+		else
+			frame:Close()
+		end
 end)
