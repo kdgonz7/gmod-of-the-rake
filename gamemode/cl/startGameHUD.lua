@@ -77,11 +77,11 @@ net.Receive("startgamehud", function(len)
 				draw.RoundedBox(5, 0, 0, w, h, Color(77, 77, 77))
 			end
 
-			DrawMultilineText(frame, "Welcome to the rake. A gamemode about\nsurvival and killing an anomaly\nknown as the rake.\n\nTo survive you must have teamwork,\nand a determination to survive.\n\nHow to play: Press `Start Game`. You start off with the Assault class, but can upgrade as your XP improves.", "MainUIFont", 100, 50, Color(255, 255, 255))
+			DrawMultilineText(frame, "Welcome to the rake. A gamemode about\nsurvival and killing an anomaly\nknown as the rake.\n\nTo survive you must have teamwork,\nand a determination to survive.\n\nHow to play: Press `Start Game`. You start off with the Assault class, but can upgrade as your XP improves.\nTo open this menu again, press F3.\nThis window is only visible in the lobby.", "MainUIFont", 100, 50, Color(255, 255, 255))
 
 			local Button = vgui.Create( "DButton", frame )
-			Button:SetPos( 100, 250 )
-			Button:SetSize( 200, 50 )
+			Button:SetPos( 100, 300 )
+			Button:SetSize( 200, 90 )
 			Button:SetText( "Start Game" )
 			Button:SetFont	( "MainUIFont" )
 			Button.DoClick = function()
