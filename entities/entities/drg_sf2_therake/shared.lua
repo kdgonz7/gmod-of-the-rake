@@ -29,9 +29,9 @@ ENT.RunAnimRate = 1
 ENT.WalkAnimRate = -1
 ENT.Acceleration = 500
 ENT.Deceleration = 5000
-ENT.WalkSpeed = 80
+ENT.WalkSpeed = 300
 ENT.RunSpeed = 500
-ENT.WalkAnimation = "walk_all"
+ENT.WalkAnimation = "run"
 ENT.IdleAnimation = "newidle2"
 ENT.RunAnimation = "run"
 -- Detection --
