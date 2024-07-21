@@ -53,10 +53,12 @@ roundManager = roundManager or {
 
 	WeaponClasses = {
 		["assault"] = {
+			{"rake_createviewtrap", nil, nil},
 			{"mg_acharlie", "AR2", 210},
 			{ "mg_m9", "Pistol", 50},
 		},
 		["assassin"] = {
+			{"rake_createviewtrap", nil, nil},
 			{"mg_sm_t9standard", "SMG", 210},
 			{"mg_makarov", "Pistol", 50},
 			{"weapon_slam", "slam", 10},
@@ -321,7 +323,10 @@ function roundManager:StartRound()
 		print(wc)
 		for _, x in ipairs(self.WeaponClasses[wc]) do
 			v:Give(x[1])
-			v:GiveAmmo(x[3], x[2])
+			print("Giving " .. x[1])
+			if x[2] then
+				v:GiveAmmo(x[3], x[2])
+			end
 		end
 
 		v:SelectWeapon(self.WeaponClasses[wc][1][1])
