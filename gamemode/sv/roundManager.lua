@@ -52,10 +52,20 @@ roundManager = roundManager or {
 	UseForTracking = CreateConVar("rake_UseForTracking", "ainodes", FCVAR_REPLICATED, "Which method should be used to spawn rake? navmesh or ainodes. note: navmesh is more likely to get rake stuck initially"),
 
 	WeaponClasses = {
-		["Assault"] = {
+		["assault"] = {
 			{"mg_acharlie", "AR2", 210},
-			{ "mg_m9", "Pistol", 50}
-		}
+			{ "mg_m9", "Pistol", 50},
+		},
+		["assassin"] = {
+			{"mg_sm_t9standard", "SMG", 210},
+			{"mg_makarov", "Pistol", 50},
+			{"weapon_slam", "slam", 10},
+		},
+	},
+
+	XPRequirements = {
+		["assault"] = 0,
+		["assassin"] = 60,
 	},
 
 	WeaponsInMap = 0,
@@ -201,6 +211,9 @@ function roundManager:ResetAllPlayers()
 	for k, v in pairs(self.Players) do
 		v:UnLock()
 		v:Spawn()
+
+		v:PrintMessage(HUD_PRINTTALK, "+5 XP for staying alive")
+		dataBase:ModifyPlayerXP(v, 5)
 	end
 
 	for k, v in pairs(self.DeadPlayers) do
@@ -304,12 +317,14 @@ function roundManager:StartRound()
 
 		v:Spawn()
 
-		for _, x in ipairs(self.WeaponClasses[v.WeaponClass]) do
+		local wc = v:GetNWString("WeaponClass")
+		print(wc)
+		for _, x in ipairs(self.WeaponClasses[wc]) do
 			v:Give(x[1])
 			v:GiveAmmo(x[3], x[2])
 		end
 
-		v:SelectWeapon(self.WeaponClasses[v.WeaponClass][1][1])
+		v:SelectWeapon(self.WeaponClasses[wc][1][1])
 
 		if self.ArmorEnabled:GetBool() then
 			v:SetArmor(100)
