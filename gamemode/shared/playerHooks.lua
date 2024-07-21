@@ -66,7 +66,8 @@ hook.Add("Initialize", "RakeDRGBaseSettings", function()
 end)
 
 hook.Add("PlayerInitialSpawn", "AdminCheckAndEtc", function(ply)
-	ply.WeaponClass = "Assault"	// assault gives a M4A1, and a Renetti
+	ply:SetNWString("WeaponClass", "assault")	// assault gives a M4A1, and a Renetti
+	ply:SetNWInt("XP", 10)
 
 	if adminManager:PlayerIsAdmin(ply:SteamID64()) then
 		PrintMessage(HUD_PRINTCENTER, "Admin has joined!")
@@ -144,6 +145,7 @@ end)
 
 hook.Add("PlayerSwitchWeapon", "RakeSpeedChange", function (ply, old, new)
 	if not ply:Alive() then return end
+	if roundManage["WalkSpeeds"][new:GetPrimaryAmmoType()] == nil then return end
 
 	ply:SetWalkSpeed(roundManage["WalkSpeeds"][new:GetPrimaryAmmoType()][1])
 	ply:SetRunSpeed (roundManage["WalkSpeeds"][new:GetPrimaryAmmoType()][2])
