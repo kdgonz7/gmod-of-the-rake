@@ -32,7 +32,7 @@ SWEP.DrawCrosshair		= true
 canSpawn = true
 
 function SWEP:Initialize()
-	self:SetHoldType("fists")
+	self:SetHoldType("normal")
 end
 
 function SWEP:Deploy()
