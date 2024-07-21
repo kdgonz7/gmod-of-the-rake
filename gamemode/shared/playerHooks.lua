@@ -12,7 +12,6 @@ hook.Add("InitPostEntity", "RakeGetnodes", function()
 	end
 
 	if not navAreas then
-		print("prep navmesh")
 		navAreas = navmesh.GetAllNavAreas()
 
 		if not navAreas
