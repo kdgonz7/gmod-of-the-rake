@@ -77,6 +77,7 @@ function SWEP:PrimaryAttack()
 			local ent = ents.Create("rake_viewtrap")
 
 			ent:SetPos(tr.HitPos)
+			ent:SetAngles(owner:EyeAngles() + Angle(-45, 0, 0))
 			ent:Spawn()
 
 			canSpawn = false
