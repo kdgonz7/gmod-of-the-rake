@@ -34,7 +34,33 @@ function SWEP:Initialize()
 end
 
 function SWEP:Deploy()
+	if CLIENT then
+			self:CreatePreviewEntity()
+	end
 	return true
+end
+
+function SWEP:Holster()
+	if CLIENT then
+			self:RemovePreviewEntity()
+	end
+	return true
+end
+
+function SWEP:CreatePreviewEntity()
+	if not IsValid(self.PreviewEntity) then
+			self.PreviewEntity = ClientsideModel("models/combine_turrets/floor_turret.mdl")
+			self.PreviewEntity:SetNoDraw(true)
+			self.PreviewEntity:SetRenderMode(RENDERMODE_TRANSCOLOR)
+			self.PreviewEntity:SetColor(Color(0, 255, 0, 150)) // Semi-transparent green
+	end
+end
+
+function SWEP:RemovePreviewEntity()
+	if IsValid(self.PreviewEntity) then
+			self.PreviewEntity:Remove()
+			self.PreviewEntity = nil
+	end
 end
 
 function SWEP:ShouldDrawViewModel()
@@ -53,5 +79,20 @@ function SWEP:PrimaryAttack()
 
 			self:Remove()
 		end
+	end
+end
+
+
+function SWEP:Think()
+	if CLIENT and IsValid(self.PreviewEntity) then
+			local owner = self:GetOwner()
+			local tr = owner:GetEyeTrace()
+			if tr.Hit and tr.HitPos:Distance(owner:GetPos()) <= 100 then
+					self.PreviewEntity:SetPos(tr.HitPos)
+					self.PreviewEntity:SetAngles(owner:GetAngles())
+					self.PreviewEntity:SetNoDraw(false)
+			else
+					self.PreviewEntity:SetNoDraw(true)
+			end
 	end
 end
