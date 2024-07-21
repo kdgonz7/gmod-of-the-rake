@@ -36,9 +36,9 @@ roundManager = roundManager or {
 
 	WalkSpeeds = {
 		[0] = { 250, 350 }, // Melee
-		[1] = { 160, 230 }, /* [Ammo ID] = { walk speed, run speed } */	// AR2
+		[1] = { 160, 265 }, /* [Ammo ID] = { walk speed, run speed } */	// AR2
 		[3] = { 200, 300 }, // Pistol
-		[4] = { 130, 260 },	// SMG
+		[4] = { 130, 265 },	// SMG
 	},
 
 	LastRakeKiller = nil,
