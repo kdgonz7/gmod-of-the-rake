@@ -1,5 +1,8 @@
 AddCSLuaFile()
 
+ENT.Type = "anim"
+ENT.Base = "base_anim"
+
 ENT.PrintName = "Rake View Trap Preview"
 ENT.Author = "Kai D."
 ENT.Information = "A preview of the Rake View Trap"
