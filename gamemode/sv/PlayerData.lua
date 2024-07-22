@@ -16,7 +16,7 @@ function dbInternal:CheckTableAndAdd(player)
 	local pc = player:GetPData("Class", "assault")
 
 	local default = util.TableToJSON({
-		["Classes"] = {},
+		["Classes"] = {"assault"},
 	})
 
 	local inventory = player:GetPData("Inventory", default)
