@@ -1,6 +1,7 @@
 // Create a view trap for the rake
 AddCSLuaFile()
 
+
 SWEP.PrintName = "Create Rake View Trap"
 SWEP.Author = "Kai D."
 SWEP.Category = "The Rake Tools"
