@@ -1,6 +1,8 @@
 roundManage = roundManager:Initialize()
 adminManager = adminManager:Initialize()
 
+util.AddNetworkString("startgamehud")
+
 for i = 1, #admins do
 	adminManager:AddAdmin(tostring(admins[i]))
 end
@@ -82,15 +84,19 @@ hook.Add("PlayerSpawn", "RakeSpawnPlayer", function(ply)
 	if not IsValid(ply) then return end
 	if not roundManager:FindPlayer(ply) then roundManager:AddPlayerObjectToCache(ply) end
 
+	net.Start("startgamehud")
+	net.Send(ply)
+
 	ply:RemoveAllAmmo()
 	ply:StripWeapons()
 
 	if roundManage:GetRoundStatus() == IN_LOBBY then
-		// We'll give them a pistol to fight their friends :)
+		// We'll give them a pistol to fight their friends :) 
 		ply:Give("mg_m1911")
 		ply:GiveAmmo(550, "Pistol", true)
 		ply:GodEnable()
 		ply:SelectWeapon("mg_m1911")
+		ply:DrawViewModel(true)
 	end
 end)
 
@@ -155,7 +161,6 @@ hook.Add("PlayerSwitchWeapon", "RakeSpeedChange", function (ply, old, new)
 	ply:SetRunSpeed (roundManage["WalkSpeeds"][new:GetPrimaryAmmoType()][2])
 end)
 
-util.AddNetworkString("startgamehud")
 
 hook.Add("ShowSpare1", "RakeStartGameHUD", function(ply)
 	if not ply:IsSuperAdmin() or not adminManager:PlayerIsAdmin(ply:SteamID64()) then return end
