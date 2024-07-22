@@ -27,8 +27,7 @@ concommand.Add("rake_buy", function(ply, cmd, args, str)
 	end
 
 
-	DrawMultilineText(panel2, "Your current class is '" .. ply:GetNWString("WeaponClass") .. "'\n\nTo the right is the list of classes you can buy,\nas well as classes you own.", "MainUIFont", 50, 50, Color(255, 255, 255))
-
+	DrawMultilineText(panel2, "To the right is the list of players who are dead.\n(100XP) You can click on one to revive them.\nYour XP: " .. ply:GetNWInt("XP") .. "", "MainUIFont", 50, 50, Color(255, 255, 255))
 
 	local DeadPlayers = vgui.Create( "DListView", Dialog )
 
