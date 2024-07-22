@@ -50,7 +50,11 @@ end
 function dbInternal:AddToPlayerInventory(player, item)
 	local inventory = dbInternal:DecodeInventory(player)
 
-	inventory["Classes"][#inventory["Classes"] + 1] = item
+	if inventory["Classes"][item] then
+		return
+	end
+
+	inventory["Classes"][item] = true
 
 	player:SetNWString("Inventory", util.TableToJSON(inventory))
 end
@@ -58,11 +62,5 @@ end
 function dbInternal:PlayerHasWeaponClass(pl, class)
 	local inventory = dbInternal:DecodeInventory(pl)
 
-	for i = 1, #inventory["Classes"] do
-		if inventory["Classes"][i] == class then
-			return true
-		end
-	end
-
-	return false
+	return inventory["Classes"][class]
 end
