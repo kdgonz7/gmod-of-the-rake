@@ -27,6 +27,7 @@ concommand.Add("rake_ChangeClass", function(ply, cmd, args, str)
 
 	dataBase:ModifyPlayerXP(ply, -req_class_requirement)
 	dataBase:ModifyPlayerClass(ply, requested_class)
+	dataBase:AddToPlayerInventory(ply, requested_class)
 
 	print("[Rake] changed class to " .. requested_class)
 end)
