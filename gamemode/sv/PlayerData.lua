@@ -15,7 +15,11 @@ function dbInternal:CheckTableAndAdd(player)
 
 	local pc = player:GetPData("Class", "assault")
 
-	local inventory = player:GetPData("Inventory", "")
+	local default = util.TableToJSON({
+		["Classes"] = {},
+	})
+
+	local inventory = player:GetPData("Inventory", default)
 
 	player:SetNWString("WeaponClass", pc)
 	player:SetNWInt("XP", pd)
@@ -38,10 +42,27 @@ function dbInternal:QueryXP(player)
 	return player:GetNWInt("XP")
 end
 
-function dbInternal:DecodeInventory(player)
-	return util.JSONToTable(player:GetNWString("Inventory"))
+function dbInternal:DecodeInventory(ply)
+	print(ply:GetNWString("Inventory") .. " a")
+	return util.JSONToTable(ply:GetNWString("Inventory"))
 end
 
 function dbInternal:AddToPlayerInventory(player, item)
+	local inventory = dbInternal:DecodeInventory(player)
 
+	inventory["Classes"][#inventory["Classes"] + 1] = item
+
+	player:SetNWString("Inventory", util.TableToJSON(inventory))
+end
+
+function dbInternal:PlayerHasWeaponClass(pl, class)
+	local inventory = dbInternal:DecodeInventory(pl)
+
+	for i = 1, #inventory["Classes"] do
+		if inventory["Classes"][i] == class then
+			return true
+		end
+	end
+
+	return false
 end
