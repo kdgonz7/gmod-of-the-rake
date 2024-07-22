@@ -1,0 +1,5 @@
+concommand.Add("rake_BuyClass", function(ply, cmd, args, str)
+	net.Start("rake_BuyClass")
+	net.WriteString(args[1])
+	net.SendToServer()
+end)
