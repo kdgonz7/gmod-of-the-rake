@@ -1,7 +1,6 @@
 // Create a view trap for the rake
 AddCSLuaFile()
 
-
 SWEP.PrintName = "Create Rake View Trap"
 SWEP.Author = "Kai D."
 SWEP.Category = "The Rake Tools"
@@ -29,8 +28,7 @@ SWEP.Slot			= 1
 SWEP.SlotPos			= 2
 SWEP.DrawAmmo			= false
 SWEP.DrawCrosshair		= true
-
-canSpawn = true
+SWEP.canSpawn = true
 
 function SWEP:Initialize()
 	self:SetHoldType("normal")
@@ -74,14 +72,14 @@ function SWEP:PrimaryAttack()
 	if SERVER then
 		local owner = self:GetOwner()
 		local tr = owner:GetEyeTrace()
-		if tr.Hit and tr.HitPos:Distance(owner:GetPos()) <= 100 and canSpawn then
+		if tr.Hit and tr.HitPos:Distance(owner:GetPos()) <= 100 and self.canSpawn then
 			local ent = ents.Create("rake_viewtrap")
 
 			ent:SetPos(tr.HitPos)
 			ent:SetAngles(owner:EyeAngles() + Angle(-45, 0, 0))
 			ent:Spawn()
 
-			canSpawn = false
+			self.canSpawn = false
 		end
 	end
 end
@@ -92,7 +90,7 @@ function SWEP:SecondaryAttack()
 		local tr = owner:GetEyeTrace()
 
 		if tr.Hit and tr.Entity:GetClass() == "rake_viewtrap" then
-			canSpawn = true
+			self.canSpawn = true
 			tr.Entity:Remove()
 		end
 	end
