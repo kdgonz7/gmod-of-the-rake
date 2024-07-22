@@ -319,13 +319,18 @@ function roundManager:StartRound()
 		v:Spawn()
 
 		local wc = v:GetNWString("WeaponClass")
-		print(wc)
-		for _, x in ipairs(self.WeaponClasses[wc]) do
-			v:Give(x[1])
+
+		for _, x in pairs(self.WeaponClasses[wc]) do
+			if ! v:Give(x[1]) then
+				print( "failed to give weapon " .. x[1] .. " to " .. v:Nick() )
+			end
+
 			print("Giving " .. x[1])
 			if x[2] then
 				v:GiveAmmo(x[3], x[2])
 			end
+
+			v:DrawViewModel( true )
 		end
 
 		v:SelectWeapon(self.WeaponClasses[wc][1][1])
