@@ -168,9 +168,11 @@ if SERVER then
 
 			local p = dmg:GetAttacker()
 
-			if p:IsPlayer() and p:Alive() then
-				p:PrintMessage(HUD_PRINTTALK, "+10 XP for deterring the rake")
-				dataBase:ModifyPlayerXP(p, 10)
+			if p:IsPlayer() then
+				if p:Alive() then
+					p:PrintMessage(HUD_PRINTTALK, "+10 XP for deterring the rake")
+					dataBase:ModifyPlayerXP(p, 10)
+				end
 			end
 
 			local myEnt = self:GetNW2Entity("DrGBaseEnemy")
