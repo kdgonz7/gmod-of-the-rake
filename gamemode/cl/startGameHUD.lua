@@ -18,28 +18,6 @@ hook.Add("Initialize", "RakeAddFonts", function()
 	})
 end)
 
-local function DrawMultilineText(parent, text, font, x, y, color)
-	text = string.Explode("\n", text)
-
-	local offset = 0
-
-	for _, v in ipairs(text) do
-		local l = vgui.Create("DLabel", parent)
-
-		l:SetFont(font)
-		l:SetPos(x, y + offset)
-		l:SetColor(color)
-		l:SetText(v)
-		l:SetWidth(1000)
-		l:SizeToContents()  -- Adjust the size to fit the text
-
-
-		offset = offset + l:GetTall()
-	end
-end
-
-
-
 net.Receive("startgamehud", function(len)
 	if GetConVar("rake_GameState"):GetString() == "match" then return end
 		if not frame then
