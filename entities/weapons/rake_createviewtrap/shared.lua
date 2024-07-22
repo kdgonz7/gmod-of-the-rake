@@ -75,8 +75,11 @@ function SWEP:PrimaryAttack()
 		if tr.Hit and tr.HitPos:Distance(owner:GetPos()) <= 100 and self.canSpawn then
 			local ent = ents.Create("rake_viewtrap")
 
+			local ey = owner:EyeAngles()
+			ey.pitch = 0
+
 			ent:SetPos(tr.HitPos)
-			ent:SetAngles(owner:EyeAngles() + Angle(-45, 0, 0))
+			ent:SetAngles(ey)
 			ent:Spawn()
 
 			self.canSpawn = false
