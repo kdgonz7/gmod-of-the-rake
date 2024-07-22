@@ -3,7 +3,7 @@ local img_armor = Material("materials/shield.png")
 
 function HUD()
 	local cl = LocalPlayer()
-
+	if ! cl then return end
 	if ! cl:Alive() then return end
 
 	-- draw.RoundedBox(10, 50, ScrH() - 300, 250, 250, Color(39, 39, 39, 255))
@@ -26,10 +26,9 @@ function HUD()
 	surface.SetDrawColor(255, 255, 255, 255)
 	surface.DrawTexturedRect(ScrW() - 60, ScrH() - 80, 50, 50)
 
-	-- draw.SimpleText("XP: " .. cl:GetNWInt("XP", 0), "MainUIFont", 80, ScrH() - 270, Color(255, 255, 255, 255), 0, 0)
-	-- draw.SimpleText("Health: " .. cl:Health(), "MainUIFont", 80, ScrH() - 250, Color(255, 255, 255, 255), 0, 0)
-	-- draw.SimpleText("Armor: " .. cl:Armor(), "MainUIFont", 80, ScrH() - 230, Color(255, 255, 255, 255), 0, 0)
-
+	-- Ammo
+	draw.SimpleText("CUR: " .. cl:GetActiveWeapon():Clip1(), "Trebuchet24", 80, ScrH() - 310, Color(255, 255, 255, 255), 0, 0)
+	draw.SimpleText("RSV: " .. cl:GetAmmoCount(cl:GetActiveWeapon():GetPrimaryAmmoType()), "Trebuchet24", 80, ScrH() - 290, Color(255, 255, 255, 255), 0, 0)
 end
 
 function HideHUD(name)
