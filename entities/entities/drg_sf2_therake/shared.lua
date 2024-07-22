@@ -161,7 +161,6 @@ if SERVER then
 		damage_taken = damage_taken + dmg:GetDamage()
 
 		if damage_taken >= threshold then
-			self:SetNW2Entity("DrGBaseEnemy", nil)
 			local att2 = GetRandomPointInMap(roundManage.UseForTracking:GetString())
 			local rake = self
 			rake:SetPos(att2)
@@ -174,7 +173,16 @@ if SERVER then
 				dataBase:ModifyPlayerXP(p, 10)
 			end
 
+			local myEnt = self:GetNW2Entity("DrGBaseEnemy")
+
+			if p ~= myEnt and p:Alive() and myEnt:Alive() then
+				p:PrintMessage(HUD_PRINTTALK, "+15 XP for saving " .. self:GetNW2Entity("DrGBaseEnemy"):Name())
+				myEnt:PrintMessage(HUD_PRINTTALK, "you were saved by " .. p:Name())
+			end
+
 			damage_taken = 0
+
+			self:SetNW2Entity("DrGBaseEnemy", nil)
 		end
 	end
 end
