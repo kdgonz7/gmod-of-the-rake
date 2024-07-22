@@ -58,7 +58,7 @@ roundManager = roundManager or {
 			{"rake_createviewtrap", nil, nil},
 		},
 		["assassin"] = {
-			{"mg_sm_t9standard", "SMG", 210},
+			{"mg_sm_t9standard", "SMG1", 210},
 			{"mg_makarov", "Pistol", 50},
 			{"weapon_slam", "slam", 10},
 			{"rake_createviewtrap", nil, nil},
@@ -427,6 +427,7 @@ end
 
 function roundManager:EndRound(reason)
 	// Cleanup the current round
+	if self:GetRoundStatus() == IN_LOBBY then return end
 
 	RunConsoleCommand("fpsfog_active", 0)
 	// check the reason the game ended
