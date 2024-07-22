@@ -192,7 +192,6 @@ concommand.Add("rake_BuyBack", function(ply, cmd, args, str)
 		gply:Give("mg_m1911")
 		gply:SelectWeapon("mg_m1911")
 		gply:GiveAmmo(550, "Pistol", true)
-		roundManage:Revive(ply)
 	end
 end)
 
