@@ -34,6 +34,7 @@ function dbInternal:ModifyPlayerXP(player, amount)
 end
 
 function dbInternal:ModifyPlayerClass(player, newClass)
+	if ! dbInternal:PlayerHasWeaponClass(player, newClass) then return end
 	player:SetNWString("WeaponClass", newClass)
 	player:SetPData("Class", newClass)
 end
@@ -43,7 +44,6 @@ function dbInternal:QueryXP(player)
 end
 
 function dbInternal:DecodeInventory(ply)
-	print(ply:GetNWString("Inventory") .. " a")
 	return util.JSONToTable(ply:GetNWString("Inventory"))
 end
 
