@@ -27,8 +27,8 @@ function HUD()
 	surface.DrawTexturedRect(ScrW() - 60, ScrH() - 80, 50, 50)
 
 	-- Ammo
-	draw.SimpleText("CUR: " .. cl:GetActiveWeapon():Clip1(), "Trebuchet24", 80, ScrH() - 310, Color(255, 255, 255, 255), 0, 0)
-	draw.SimpleText("RSV: " .. cl:GetAmmoCount(cl:GetActiveWeapon():GetPrimaryAmmoType()), "Trebuchet24", 80, ScrH() - 290, Color(255, 255, 255, 255), 0, 0)
+	draw.SimpleText(cl:GetActiveWeapon():Clip1(), "HudDefault", 80, ScrH() - 310, Color(255, 255, 255, 255), 0, 0)
+	draw.SimpleText(cl:GetAmmoCount(cl:GetActiveWeapon():GetPrimaryAmmoType()), "HudHintTextLarge", 80, ScrH() - 290, Color(255, 255, 255, 255), 0, 0)
 end
 
 function HideHUD(name)
