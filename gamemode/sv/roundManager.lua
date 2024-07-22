@@ -53,15 +53,15 @@ roundManager = roundManager or {
 
 	WeaponClasses = {
 		["assault"] = {
-			{"rake_createviewtrap", nil, nil},
 			{"mg_acharlie", "AR2", 210},
 			{ "mg_m9", "Pistol", 50},
+			{"rake_createviewtrap", nil, nil},
 		},
 		["assassin"] = {
-			{"rake_createviewtrap", nil, nil},
 			{"mg_sm_t9standard", "SMG", 210},
 			{"mg_makarov", "Pistol", 50},
 			{"weapon_slam", "slam", 10},
+			{"rake_createviewtrap", nil, nil},
 		},
 	},
 
@@ -103,7 +103,7 @@ end
 */
 
 function roundManager:FindPlayer(player)
-	for k, v in pairs(roundManager.Players) do
+	for k, v in pairs(self.Players) do
 		if v == player then
 			return true
 		end
@@ -129,7 +129,6 @@ function roundManager:RemovePlayerFromCache(player)
 		end
 	end
 end
-
 
 function GetRandomPointInMap(typ)
 	if typ == "navmesh" then
@@ -204,7 +203,7 @@ function roundManager:RegisterDead(player)
 			table.remove(self.Players, k)
 			break
 		end
-	end
+			end
 
 	self.DeadPlayers[#self.DeadPlayers + 1] = player
 end
@@ -366,7 +365,7 @@ function roundManager:StartRound()
 				if ! p then return end
 
 				if p:Alive() then /* spawn right on top of em */
-					local around = FindClosestNode(p:GetPos(), 7)
+					local around = FindClosestNode(p:GetPos(), 4)
 
 					self.RakeEntity:SetPos(around)
 					self.RakeEntity:SetNW2Entity("DrGBaseEnemy", p)
@@ -401,6 +400,28 @@ function roundManager:StartRound()
 					PrintMessage(HUD_PRINTCENTER, "Loot has spawned!")
 				end
 			end)
+
+			timer.Create("RakeBuyStationSpawn", 5, 1, function()
+				if ! self.RakeEntity then return end
+
+				PrintMessage(HUD_PRINTCENTER, "Buy Station Has Spawned!")
+
+				local randomSpawn = FindClosestNode(Vector(0, 0, 0), 3)
+
+				if ! randomSpawn then return end
+
+				local buyStation = ents.Create("rake_buystation")
+
+				buyStation:SetPos(randomSpawn)
+				buyStation:SetPos(buyStation:GetPos() + Vector(0, 0, -3))
+				buyStation:Spawn()
+
+				-- timer.Simple(60, function()
+				-- 	if buyStation:IsValid() then
+				-- 		buyStation:Remove()
+				-- 	end
+				-- end)
+			end)
 	self:RoundStartCallback()
 end
 
@@ -429,6 +450,7 @@ function roundManager:EndRound(reason)
 
 		timer.Remove("FindSomeoneToKill")
 		timer.Remove("SpawnSupplies")
+		timer.Remove("RakeBuyStationSpawn")
 
 		self.WeaponsInMap = 0
 		self.AmmoCache = {}
