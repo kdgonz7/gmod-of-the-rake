@@ -1,10 +1,21 @@
-concommand.Add("rake_ChangeClass", function(ply, cmd, args, str)
+util.AddNetworkString("rake_BuyClass")
+
+net.Receive("rake_BuyClass", function(len, ply)
 	if roundManage:GetRoundStatus() != IN_LOBBY then return end
-	if ! args[1] then return end
+	if not ply:Alive() then return end
+
+	local className = sql.SQLStr(net.ReadString(), true)
 
 	local myXP = tonumber(ply:GetNWInt("XP"))
 
-	local requested_class =	string.lower(args[1])
+	local requested_class =	string.lower(className)
+
+	if dataBase:PlayerHasWeaponClass(ply, requested_class) then
+		dataBase:ModifyPlayerClass(ply, requested_class)
+		print("[Rake] Changed Class to " .. requested_class)
+		return
+	end
+
 	if requested_class == nil then
 		print("[Rake] no class specified!")
 		return
@@ -30,10 +41,6 @@ concommand.Add("rake_ChangeClass", function(ply, cmd, args, str)
 	dataBase:AddToPlayerInventory(ply, requested_class)
 
 	print("[Rake] changed class to " .. requested_class)
-end)
-
-concommand.Add("rake_MyXP", function(ply, cmd, args, str)
-	local myXP = ply:GetNWInt("XP")
-
-	print("[Rake] your XP: " .. myXP)
+	print("[Rake] successfully bought")
+	print("[Rake] new XP: " .. ply:GetNWInt("XP"))
 end)
