@@ -157,14 +157,46 @@ end)
 
 util.AddNetworkString("startgamehud")
 
-hook.Add("KeyPress", "RakeStartGameHUD", function(ply, key)
+hook.Add("ShowSpare1", "RakeStartGameHUD", function(ply)
 	if not ply:IsSuperAdmin() or not adminManager:PlayerIsAdmin(ply:SteamID64()) then return end
 
-	if key == KEY_F3 then
 		net.Start("startgamehud")
 		net.Send(ply)
+end)
+
+concommand.Add("drop", function(ply, cmd, args, str)
+	ply:DropWeapon(ply:GetActiveWeapon(), nil, Vector(0, 5, 1))
+end)
+
+concommand.Add("rake_BuyBack", function(ply, cmd, args, str)
+	local steamid = args[1]
+
+	if not steamid then return end
+
+	local gply = player.GetBySteamID64(steamid)
+
+	local xp = tonumber(ply:GetPData("XP", 0))
+
+	print("[Rake] XP: " .. xp)
+
+	if xp < 100 then
+		print("[Rake] you don't have enough XP!")
+		return
+	end
+
+	if not ply then return end
+
+	if not gply:Alive() then
+		dataBase:ModifyPlayerXP(ply, -100)
+		gply:Spawn()
+		gply:Give("mg_m1911")
+		gply:SelectWeapon("mg_m1911")
+		gply:GiveAmmo(550, "Pistol", true)
+		roundManage:Revive(ply)
 	end
 end)
+
+local color_red = Color( 255, 0, 0 )
 
 hook.Add("PlayerNoClip", "NoNoClip", function(ply, des) return false end)
 
