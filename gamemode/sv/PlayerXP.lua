@@ -11,18 +11,16 @@ function dbInternal:Initialize()
 end
 
 function dbInternal:CheckTableAndAdd(player)
-	local pd = player:GetPData("XP", -1)
-
-	if pd == -1 then
-		player:SetPData("XP", 0)
-
-		pd = 0
-	end
+	local pd = player:GetPData("XP", 0)
 
 	local pc = player:GetPData("Class", "assault")
 
+	local inventory = player:GetPData("Inventory", "")
+
 	player:SetNWString("WeaponClass", pc)
 	player:SetNWInt("XP", pd)
+
+	player:SetNWString("Inventory", inventory)
 end
 
 // modify the player XP
@@ -38,4 +36,12 @@ end
 
 function dbInternal:QueryXP(player)
 	return player:GetNWInt("XP")
+end
+
+function dbInternal:DecodeInventory(player)
+	return util.JSONToTable(player:GetNWString("Inventory"))
+end
+
+function dbInternal:AddToPlayerInventory(player, item)
+
 end
