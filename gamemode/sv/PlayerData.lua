@@ -2,10 +2,14 @@
 	Handle XP, and stuff
 */
 
+-- TODO use SQL instead of files, we'll do this tomorrow
+-- TODO we can use custom SQL code, i know how to use it.
+
 util.AddNetworkString("rake_GiveXP")
 
 dbInternal = dbInternal or {}
 
+-- init function
 function dbInternal:Initialize()
 	return self
 end
