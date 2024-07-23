@@ -189,13 +189,13 @@ end)
 	only allow one type of each weapon to be picked up
 */
 hook.Add("PlayerCanPickupWeapon", "RakeAmmoCheck", function (ply, wep)
-	local plyWeapons = ply:GetWeapons()
+	-- local plyWeapons = ply:GetWeapons()
 
-	for _, v in ipairs(plyWeapons) do
-		if (v:GetPrimaryAmmoType() == wep:GetPrimaryAmmoType()) then
-			ply:DropWeapon(v, nil, Vector(0, 5, 1))
-		end
-	end
+	-- for _, v in ipairs(plyWeapons) do
+	-- 	if (v:GetPrimaryAmmoType() == wep:GetPrimaryAmmoType()) then
+	-- 		ply:DropWeapon(v, nil, Vector(0, 5, 1))
+	-- 	end
+	-- end
 
 	return true
 end)
