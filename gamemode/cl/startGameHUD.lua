@@ -122,6 +122,7 @@ net.Receive("startgamehud", function(len)
 
 				item:SetFont	( "MainUIFont" )
 				item:SetTextColor(Color(190, 190, 190))
+
 				item.DoClick = function()
 					net.Start("rake_BuyClass")
 					net.WriteString(k)
@@ -129,12 +130,14 @@ net.Receive("startgamehud", function(len)
 
 					notification.AddLegacy("Changed class to " .. k, NOTIFY_GENERIC, 5)
 				end
+
 				item.Paint = function(self, w, h)
 					draw.RoundedBox(20, 0, 0, w, h, Color(77, 77, 77))
 				end
 
 				grid:AddItem( item )
 			end
+
 			grid:SetPos( 5, 5 )
 			grid:SetCols( 3 )
 			grid:SetColWide( scrw * 150 / 1920 )
