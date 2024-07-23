@@ -1,3 +1,5 @@
+util.AddNetworkString("rake_BotSwitchState")
+
 local RandomName = function() local bn = {
 	"RakeKiller07",
 	"Micahnator3000",
@@ -115,8 +117,40 @@ end
 
 rePathDelay = 1
 
+hook.Add("PlayerSpawn", "RakeBotHooker", function(ply)
+	if ! ply:IsBot() then return end
+
+	ply:SetNWString("STATE", "WANDERING-FOLLOWING")
+end)
+
+hook.Add("PlayerSetModel", "RakeBotModel", function(ply)
+	if ! ply:IsBot() then return end
+	PrintMessage(HUD_PRINTTALK, ply:GetName() .. ": i'm ready. start the game.")
+	ply:SetModel("models/player/combine_soldier.mdl")
+end)
+
+net.Receive("rake_BotSwitchState", function(len, ply_sender)
+	local botPlayerEnt = net.ReadEntity()
+	local newState = net.ReadString()
+
+	if ! IsValid(botPlayerEnt) then return end
+	if ! botPlayerEnt:IsBot() then return end
+
+	if newState == "WANDERING-FOLLOWING" then
+		botPlayerEnt:SetNWString("STATE", "WANDERING-FOLLOWING")
+		return
+	elseif newState == "GOTO-POSITION" then
+		botPlayerEnt:SetNWString("STATE", "GOTO-POSITION")
+		botPlayerEnt:SetNWVector("POSITION", net.ReadVector())
+		return
+	end
+
+	botPlayerEnt:SetNWString("STATE", newState)
+end)
+
 hook.Add("StartCommand", "RakeStartCommand", function(ply, cmd)
 	if ! ply:IsBot() then return end
+
 	cmd:ClearButtons()
 	cmd:ClearMovement()
 
@@ -171,6 +205,15 @@ hook.Add("StartCommand", "RakeStartCommand", function(ply, cmd)
 	if ( !ply.path || #ply.path < 1 ) then
 		ply.path = nil
 		ply.targetArea = nil
+		-- patrol
+
+		if ( math.random( 1, 100 ) > 50 ) then
+			local allnav = navmesh.GetAllNavAreas()
+			local random = math.random( 1, #allnav )
+
+			ply.path = Pathfind_AS( currentArea, allnav[ random ] )
+			ply.targetArea = allnav[random]
+		end
 		return
 	end
 
