@@ -125,8 +125,8 @@ end
 -- note: this is used in SaveToFile
 function dbInternal:SavePlayer(ply)
 	-- get the player's XP, class, and inventory
-	local p_xp = v:GetNWInt("XP")
-	local p_class = v:GetNWString("WeaponClass")
+	local p_xp = ply:GetNWInt("XP")
+	local p_class = ply:GetNWString("WeaponClass")
 
 	-- we're setting the data
 	-- developers housekeeping note: please keep
@@ -135,11 +135,11 @@ function dbInternal:SavePlayer(ply)
 	local data = util.TableToJSON({
 		["XP"] = p_xp,
 		["Class"] = p_class,
-		["Inventory"] = v:GetNWString("Inventory", util.TableToJSON({["Classes"] = {["assault"] = true}}))
+		["Inventory"] = ply:GetNWString("Inventory", util.TableToJSON({["Classes"] = {["assault"] = true}}))
 	})
 
 	-- save it by their steam id
-	file.Write("rake/rakePlayer_" .. v:SteamID64() .. ".txt", data)
+	file.Write("rake/rakePlayer_" .. ply:SteamID64() .. ".txt", data)
 end
 
 --! this function should never be used
