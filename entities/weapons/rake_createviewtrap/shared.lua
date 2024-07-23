@@ -20,12 +20,12 @@ SWEP.Secondary.Ammo		= "none"
 
 SWEP.DrawAmmo = false
 
-SWEP.Weight			= 1
+SWEP.Weight			= 0
 SWEP.AutoSwitchTo		= false
 SWEP.AutoSwitchFrom		= false
 
-SWEP.Slot			= 1
-SWEP.SlotPos			= 2
+SWEP.Slot			= 0
+SWEP.SlotPos			= 5
 SWEP.DrawAmmo			= false
 SWEP.DrawCrosshair		= true
 SWEP.canSpawn = true
