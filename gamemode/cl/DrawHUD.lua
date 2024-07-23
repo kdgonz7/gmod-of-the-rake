@@ -27,6 +27,7 @@ function HUD()
 	surface.DrawTexturedRect(ScrW() - 60, ScrH() - 80, 50, 50)
 
 	-- Ammo
+	if ! cl:GetActiveWeapon():IsValid() then return end
 	draw.SimpleText(cl:GetActiveWeapon():Clip1(), "HudDefault", 80, ScrH() - 310, Color(255, 255, 255, 255), 0, 0)
 	draw.SimpleText(cl:GetAmmoCount(cl:GetActiveWeapon():GetPrimaryAmmoType()), "HudHintTextLarge", 80, ScrH() - 290, Color(255, 255, 255, 255), 0, 0)
 end
