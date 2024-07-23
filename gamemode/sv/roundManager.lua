@@ -52,22 +52,51 @@ roundManager = roundManager or {
 	UseForTracking = CreateConVar("rake_UseForTracking", "ainodes", FCVAR_REPLICATED, "Which method should be used to spawn rake? navmesh or ainodes. note: navmesh is more likely to get rake stuck initially"),
 
 	WeaponClasses = {
+		-- The assault class
+		--	Good for being intense in battle, however
+		--	Sprayin' n prayin' may not be the best when you run out of ammo.
 		["assault"] = {
 			{"mg_acharlie", "AR2", 210},
 			{ "mg_m9", "Pistol", 50},
 			{"rake_createviewtrap", nil, nil},
 		},
+
+		-- The assassin class
+		--	Good for being stealthy 
+		--	and giving the rake a taste of it's own medicine.
 		["assassin"] = {
 			{"mg_sm_t9standard", "SMG1", 210},
 			{"mg_makarov", "Pistol", 50},
 			{"weapon_slam", "slam", 10},
 			{"rake_createviewtrap", nil, nil},
 		},
+
+		-- The shotgunner class
+		--	Good for being at the frontlines,
+		--	The person who wields this understands the
+		--	responsibility of killing the rake entirely.
+		["shotgunner"] = {
+			{"mg_spapa12", "Buckshot", 50},
+			{"mg_galima", "AR2", 200},
+			{"mg_357", "357", 37},
+			{"rake_createviewtrap", nil, nil},
+		},
+
+		-- The support class
+		--	Good for people who want a more chilled out gameplay.
+		--	They watch for people in need of assistance and aid them.
+		["support"] = {
+			{"weapon_medkit", nil, nil},
+			{"mg_xm4", "AR2", 210},
+			{"mg_p320", "Pistol", 50}
+		}
 	},
 
 	XPRequirements = {
 		["assault"] = 0,
 		["assassin"] = 60,
+		["shotgunner"] = 150,
+		["support"] = 85,
 	},
 
 	WeaponsInMap = 0,
