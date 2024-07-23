@@ -16,7 +16,7 @@ function dbInternal:CheckTableAndAdd(player)
 	local pc = player:GetPData("Class", "assault")
 
 	local default = util.TableToJSON({
-		["Classes"] = {"assault"},
+		["Classes"] = {["assault"] = true},
 	})
 
 	local inventory = player:GetPData("Inventory", default)
@@ -63,4 +63,55 @@ function dbInternal:PlayerHasWeaponClass(pl, class)
 	local inventory = dbInternal:DecodeInventory(pl)
 
 	return inventory["Classes"][class]
+end
+
+function dbInternal:SaveToFile()
+	if ! file.IsDir("rake", "DATA") then
+		file.CreateDir("rake")
+	end
+	for k, v in pairs(player.GetAll()) do
+		local p_xp = v:GetNWInt("XP")
+		local p_class = v:GetNWString("WeaponClass")
+
+		local data = util.TableToJSON({
+			["XP"] = p_xp,
+			["Class"] = p_class,
+			["Inventory"] = v:GetNWString("Inventory", util.TableToJSON({["Classes"] = {["assault"] = true}}))
+		})
+
+		file.Write("rake/rakePlayer_" .. v:SteamID64() .. ".txt", data)
+	end
+end
+
+/* note: you should probably NEVER use this */
+function dbInternal:LoadFromFile()
+
+	for k, v in pairs(player.GetAll()) do
+		local data = file.Read("rake/rakePlayer_" .. v:SteamID64() .. ".txt")
+		if data then
+			local p = util.JSONToTable(data)
+			v:SetNWInt("XP", p["XP"])
+			v:SetNWString("WeaponClass", p["Class"])
+			v:SetNWString("Inventory", p["Inventory"])
+		end
+	end
+end
+
+function dbInternal:LoadPlayerData(ply)
+	dbInternal:CheckTableAndAdd(ply)
+
+	local data = file.Read("rake/rakePlayer_" .. ply:SteamID64() .. ".txt")
+
+	print("Loaded Data" .. ply:SteamID64())
+	if data then
+		local p = util.JSONToTable(data)
+		print("inventory: " .. p["Inventory"])
+		ply:SetNWInt("XP", p["XP"])
+		ply:SetNWString("WeaponClass", p["Class"])
+		ply:SetNWString("Inventory", p["Inventory"])
+	else
+		ply:SetNWInt("XP", 0)
+		ply:SetNWString("WeaponClass", "assault")
+		ply:SetNWString("Inventory", util.TableToJSON({["Classes"] = {["assault"] = true}}))
+	end
 end
