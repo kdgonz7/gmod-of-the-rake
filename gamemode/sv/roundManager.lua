@@ -493,11 +493,10 @@ function roundManager:StartRound()
 				buyStation:Spawn()
 
 				-- in 60 seconds, we can remove it and let them know they screwed up
-				timer.Simple(60, function()
+				timer.Create("RakeRemoveBuyStation", 60, 1, function()
 					if buyStation:IsValid() then
 						buyStation:Remove()
 					end
-
 					PrintMessage(HUD_PRINTCENTER, "Buy Station Has Been Removed!")
 				end)
 			end)
@@ -546,6 +545,7 @@ function roundManager:EndRound(reason)
 		timer.Remove("FindSomeoneToKill")
 		timer.Remove("SpawnSupplies")
 		timer.Remove("RakeBuyStationSpawn")
+		timer.Remove("RakeRemoveBuyStation")
 
 		self.WeaponsInMap = 0
 
