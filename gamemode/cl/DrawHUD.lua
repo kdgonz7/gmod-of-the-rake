@@ -1,6 +1,8 @@
 local img_health = Material("materials/health.png")
 local img_armor = Material("materials/shield.png")
 
+local a = false
+
 function HUD()
 	local cl = LocalPlayer()
 	if ! cl then return end
@@ -30,6 +32,15 @@ function HUD()
 	if ! cl:GetActiveWeapon():IsValid() then return end
 	draw.SimpleText(cl:GetActiveWeapon():Clip1(), "HudDefault", 80, ScrH() - 310, Color(255, 255, 255, 255), 0, 0)
 	draw.SimpleText(cl:GetAmmoCount(cl:GetActiveWeapon():GetPrimaryAmmoType()), "HudHintTextLarge", 80, ScrH() - 290, Color(255, 255, 255, 255), 0, 0)
+
+	if a then
+		draw.SimpleText("F3 - Open Menu", "HudHintTextLarge", ScrW() * 0.5, ScrH() * 0.9, Color(255, 255, 255, 255), 0, 0)
+	end
+	-- how to open menu text
+	timer.Simple(30, function()
+		
+		a = false
+	end)
 end
 
 function HideHUD(name)
