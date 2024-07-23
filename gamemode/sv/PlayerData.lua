@@ -21,14 +21,25 @@ function dbInternal:LoadPlayerData(ply)
 	if ! ply then return end								--- we reallylyyyyy wanna make sure this is a player
 	if ! ply:IsPlayer() then return end			--- again, we really wanna make sure this is a player
 
+	sql.Begin()
+	sql.Query("CREATE TABLE IF NOT EXISTS rake_players (id varchar(255), xp bigint, class varchar(255), inventory varchar(255))")
+
 	-- load the player's data from the file
-	local data = file.Read("rake/rakePlayer_" .. ply:SteamID64() .. ".txt")
+	--! NOTE: this is the old way local data = file.Read("rake/rakePlayer_" .. ply:SteamID64() .. ".txt")
+
+	local data = sql.Query("SELECT * FROM rake_players where id = '" .. ply:SteamID64() .. "'")
 
 	if data then
 		-- if the file exists, we want to load it
 		-- note that the data is encoded in JSON, 
 		-- so we need to decode it
-		local p = util.JSONToTable(data)
+		--! OLD WAY AGAIN local p = util.JSONToTable(data)
+
+		local p = {
+			["XP"] = tonumber(data[1]["xp"]),
+			["Class"] = data[1]["class"],
+			["Inventory"] = data[1]["inventory"]
+		}
 
 		-- set the player's XP, class, and inventory
 		-- i really want to make the entire inventory the master holder, 
@@ -53,7 +64,10 @@ function dbInternal:LoadPlayerData(ply)
 		ply:SetNWString("WeaponClass", def_class)
 		ply:SetNWString("Inventory", def_inventory)
 
-		file.Write("rake/rakePlayer_" .. ply:SteamID64() .. ".txt", util.TableToJSON({["XP"] = def_xp, ["Class"] = def_class, ["Inventory"] = def_inventory}))
+		--! old way here ( file.Write("rake/rakePlayer_" .. ply:SteamID64() .. ".txt", util.TableToJSON({["XP"] = def_xp, ["Class"] = def_class, ["Inventory"] = def_inventory}))
+		-- IF NOT EXISTS (SELECT * FROM rake_players WHERE id = 'id') THEN INSERT into rake_players VALUES ('id', xp, 'class', 'inventory')
+		sql.Query("INSERT INTO rake_players VALUES ('" .. ply:SteamID64() .. "', " .. def_xp .. ", '" .. def_class .. "', '" .. def_inventory .. "') IF NOT EXISTS (SELECT * FROM rake_players WHERE id = '" .. ply:SteamID64() .. "')")
+		sql.Commit()
 	end
 end
 
@@ -62,7 +76,6 @@ end
 -- this sets the networked integer XP and also the PData
 function dbInternal:ModifyPlayerXP(player, amount)
 	player:SetNWInt("XP", player:GetNWInt("XP") + amount)
-	player:SetPData("XP", player:GetNWInt("XP"))
 end
 
 -- modifies the player class (changing it to the newClass)
@@ -70,7 +83,6 @@ end
 function dbInternal:ModifyPlayerClass(player, newClass)
 	if ! dbInternal:PlayerHasWeaponClass(player, newClass) then return end
 	player:SetNWString("WeaponClass", newClass)
-	player:SetPData("Class", newClass)
 end
 
 -- returns the inventory string of the player
@@ -128,6 +140,11 @@ end
 -- saves the player's data to a persistent file.
 -- note: this is used in SaveToFile
 function dbInternal:SavePlayer(ply)
+	if ! ply then return end
+
+	-- begin SQL operations
+	sql.Begin()
+
 	-- get the player's XP, class, and inventory
 	local p_xp = ply:GetNWInt("XP")
 	local p_class = ply:GetNWString("WeaponClass")
@@ -136,14 +153,19 @@ function dbInternal:SavePlayer(ply)
 	-- developers housekeeping note: please keep
 	-- the "Inventory" default with the "Assault"
 	-- class intact
-	local data = util.TableToJSON({
+	local data = {
 		["XP"] = p_xp,
 		["Class"] = p_class,
 		["Inventory"] = ply:GetNWString("Inventory", util.TableToJSON({["Classes"] = {["assault"] = true}}))
-	})
+	}
 
 	-- save it by their steam id
-	file.Write("rake/rakePlayer_" .. ply:SteamID64() .. ".txt", data)
+	--! old way here ( file.Write("rake/rakePlayer_" .. ply:SteamID64() .. ".txt", data)
+
+	-- INSERT into rake_players VALUES ('id', xp, 'class', 'inventory') WHERE id = steam id
+	-- we use the ID as an identification point
+	sql.Query("UPDATE rake_players SET xp = " .. p_xp .. ", class = '" .. p_class .. "', inventory = '" .. data["Inventory"] .. "' WHERE id = '" .. ply:SteamID64() .. "'")
+	sql.Commit()
 end
 
 --! this function should never be used
