@@ -369,84 +369,126 @@ function roundManager:StartRound()
 
 			-- spawn
 			rake:Spawn()
-
 			self.RakeEntity = rake
 		end)
 
+		-- keep the game moving by spawning the rake near a random player,
+		-- so they are not in the dark the entire time
 		timer.Create("FindSomeoneToKill", 60, -1, function()
 				if ! self.RakeEntity then return end
 
+				-- select a random player
 				local p = self:SelectRandomPlayer()
 
+				-- the function should not fail,
+				-- but if it does we'll return, this failed
 				if ! p then return end
 
+				-- if they're alive
 				if p:Alive() then /* spawn right on top of em */
 					local around = FindClosestNode(p:GetPos(), 4)
 
 					self.RakeEntity:SetPos(around)
+
+					-- in case this stupid nextbot does
+					-- not see the player initially, then 
+					-- we'll just shove it in it's face (pause)
 					self.RakeEntity:SetNW2Entity("DrGBaseEnemy", p)
 
+					-- print a message to let them know, this doesn't work
+					-- for some odd reason and i might remove it :)
 					PrintMessage(HUD_PRINTCENTER, "The Rake is on the loose!")
 				end
 			end)
 
+			-- again, another timer that spawns loot
 			timer.Create("SpawnSupplies", 20, -1, function()
+				-- we finally aren't using sent_xdest_loot anymore, thanks!
 				local ammo = ents.Create("rake_supplycrate")
 
+				-- if we fail to create the entity
 				if ! ammo then return end
 
+				-- we select a random part of the map.
 				local randomSpawn2 = GetRandomPointInMap(self.UseForTracking:GetString())
 
+				-- spawn it there
 				ammo:SetPos(randomSpawn2)
 				ammo:Spawn()
 
 				self.AmmoCache[#self.AmmoCache + 1] = ammo
 
+				-- we don't want to continually spawn a thousand crates, so we'll just remove them lol
 				if #self.AmmoCache > 10 then
+					-- look through the ammo cache
 					for _, z in ipairs(self.AmmoCache) do
 						if z:IsValid() then
-							z:Remove()
+							z:Remove() -- remove it
 						end
 					end
 
+					-- we'll let them know the loot is disappearing
+					-- "WHY IS THERE NO LOOT" - player 3, at 1hp
 					PrintMessage(HUD_PRINTCENTER, "Clearing out loot...")
 
 					self.AmmoCache = {}
 				else
+					-- otherwise we just print a message
+					-- saying the loot has dropped.
 					PrintMessage(HUD_PRINTCENTER, "Loot has spawned!")
 				end
 			end)
 
-			timer.Create("RakeBuyStationSpawn", 5, 1, function()
+			-- okay, i'm gonna stop commenting on these timers
+			timer.Create("RakeBuyStationSpawn", 30, 1, function()
+				-- if there's no rake, we don't need to do anything.
+				-- idk why this is here, but it's here and works so i'm not changing it.
 				if ! self.RakeEntity then return end
 
+				-- print a message
 				PrintMessage(HUD_PRINTCENTER, "Buy Station Has Spawned!")
 
+				-- so we find a node that's the closest to the map origin
+				-- TODO: change this, i don't know if this works under every case
 				local randomSpawn = FindClosestNode(Vector(0, 0, 0), 3)
-
 				if ! randomSpawn then return end
 
+				-- create the buy station entity
 				local buyStation = ents.Create("rake_buystation")
 
+				-- set it's position
 				buyStation:SetPos(randomSpawn)
 				buyStation:SetPos(buyStation:GetPos() + Vector(0, 0, -3))
 				buyStation:Spawn()
 
-				-- timer.Simple(60, function()
-				-- 	if buyStation:IsValid() then
-				-- 		buyStation:Remove()
-				-- 	end
-				-- end)
+				-- in 60 seconds, we can remove it and let them know they screwed up
+				timer.Simple(60, function()
+					if buyStation:IsValid() then
+						buyStation:Remove()
+					end
+
+					PrintMessage(HUD_PRINTCENTER, "Buy Station Has Been Removed!")
+				end)
 			end)
+
+	-- i have no clue why i implemented this, as it was never used, so I might remove this. :)
 	self:RoundStartCallback()
 end
 
+/*
+	This function ends a round and cleans up the game state
+*/
 function roundManager:EndRound(reason)
+	reasons = reasons or REASON_OTHER
+
 	-- Cleanup the current round
 	if self:GetRoundStatus() == IN_LOBBY then return end
 
-	RunConsoleCommand("fpsfog_active", 0)
+	RunConsoleCommand("fpsfog_active", 0)		-- disable the fog
+	RunConsoleCommand("ai_disabled", 1)			-- should've did this a long ass time ago, so the rake doesn't kill you
+
 	-- check the reason the game ended
+	-- this is 90% self explanatory, enjoy the condition tree :)
 	if reason == REASON_DEATHS then
 		PrintMessage(HUD_PRINTCENTER, "Too many players have died. Ending in 5 seconds.")
 	elseif reason == REASON_WINNER then
@@ -455,24 +497,36 @@ function roundManager:EndRound(reason)
 		PrintMessage(HUD_PRINTCENTER, "Report in team. Round over.")
 	end
 
+	-- 5 second timer, which ends the round after.
+	-- TODO: add a countdown or something
 	timer.Simple(5, function()
-		self:ModifyStatus(IN_LOBBY)
+		-- we are now in lobby
+		self:ModifyStatus(IN_LOBBY)		-- set the status to IN_LOBBY
+		self:ResetAllPlayers()				-- clear out all players (AKA respawn them)
+		dataBase:SaveToFile()					-- save all the player data
 
-		self:ResetAllPlayers()
-
-		dataBase:SaveToFile()
-
+		-- remove the rake entity
 		if self.RakeEntity ~= nil then
 			self.RakeEntity:Remove()
 			self.RakeEntity = nil
 		end
 
+		-- memory: free all the currently running timers
 		timer.Remove("FindSomeoneToKill")
 		timer.Remove("SpawnSupplies")
 		timer.Remove("RakeBuyStationSpawn")
 
 		self.WeaponsInMap = 0
-		self.AmmoCache = {}
+
+		-- clear out the ammo cache
+		-- NOTE: this should've been done a while ago, because idk if garbage collection
+		-- is a thing in source
+		for i = 1, #self.AmmoCache do
+			local z = self.AmmoCache[i]
+			if ! z then return else z:Remove() end
+		end
+
+		self.AmmoCache = {}	-- okay now we freshen up the cache
 
 		-- Run a final cleanup
 		RunConsoleCommand("gmod_admin_cleanup")
