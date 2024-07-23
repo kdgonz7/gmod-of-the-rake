@@ -23,7 +23,7 @@ concommand.Add("rake_BuyBack", function(ply, cmd, args, str)
 
 	local gply = player.GetBySteamID64(steamid)
 
-	local xp = tonumber(ply:GetPData("XP", 0))
+	local xp = tonumber(ply:GetNWInt("XP", 0))
 
 	print("[Rake] XP: " .. xp)
 
