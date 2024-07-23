@@ -202,7 +202,7 @@ hook.Add("StartCommand", "RakeStartCommand", function(ply, cmd)
 
 
 	-- we have no path, or its empty (we arrived at the goal), try to get a new path.
-	if ( !ply.path || #ply.path < 1 ) then
+	if ( !ply.path ) then
 		ply.path = nil
 		ply.targetArea = nil
 		-- patrol
