@@ -168,7 +168,7 @@ if SERVER then
 
 			local p = dmg:GetAttacker()
 
-			if p:IsPlayer() then
+			if p:IsPlayer() and IsValid(p) then
 				if p:Alive() then
 					p:PrintMessage(HUD_PRINTTALK, "+10 XP for deterring the rake")
 					dataBase:ModifyPlayerXP(p, 10)
@@ -177,9 +177,11 @@ if SERVER then
 
 			local myEnt = self:GetNW2Entity("DrGBaseEnemy")
 
+			if myEnt then
 			if p ~= myEnt and p:Alive() and myEnt:Alive() then
-				p:PrintMessage(HUD_PRINTTALK, "+15 XP for saving " .. self:GetNW2Entity("DrGBaseEnemy"):Name())
-				myEnt:PrintMessage(HUD_PRINTTALK, "you were saved by " .. p:Name())
+					p:PrintMessage(HUD_PRINTTALK, "+15 XP for saving " .. self:GetNW2Entity("DrGBaseEnemy"):Name())
+					myEnt:PrintMessage(HUD_PRINTTALK, "you were saved by " .. p:Name())
+				end
 			end
 
 			damage_taken = 0
