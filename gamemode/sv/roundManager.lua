@@ -297,6 +297,9 @@ function roundManager:StartRound()
 
 	if self:GetRoundStatus() == IN_MATCH then return end -- don't start if we're already in a round
 
+	-- in case it's enabled, we'll disable it
+	RunConsoleCommand("ai_disabled", 0)
+
 	/* if fog is enabled, turn it on */
 	if self.FogEnabled:GetBool() then
 		RunConsoleCommand("fpsfog_active", self.Difficulty:GetInt())
