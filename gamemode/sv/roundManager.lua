@@ -523,7 +523,10 @@ function roundManager:EndRound(reason)
 		-- is a thing in source
 		for i = 1, #self.AmmoCache do
 			local z = self.AmmoCache[i]
-			if ! z then return else z:Remove() end
+
+			if z:IsValid() then
+				z:Remove()
+			end
 		end
 
 		self.AmmoCache = {}	-- okay now we freshen up the cache
