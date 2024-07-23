@@ -100,10 +100,10 @@ end)
 hook.Add("PlayerSpawn", "RakeSpawnPlayer", function(ply)
 	if not IsValid(ply) then return end
 	if not roundManager:FindPlayer(ply) then roundManager:AddPlayerObjectToCache(ply) end
-	ply:SetCollisionGroup(1)
 	-- we strip all the player's weapons
 	ply:RemoveAllAmmo()
 	ply:StripWeapons()
+	ply:SetCollisionGroup(1)
 
 	-- if we're in the lobby, give them a little pistol and
 	-- make sure they can't get killed.
