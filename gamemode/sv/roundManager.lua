@@ -35,10 +35,10 @@ roundManager = roundManager or {
 	AmmoCache = {},
 
 	WalkSpeeds = {
-		[0] = { 250, 350 }, // Melee
-		[1] = { 160, 265 }, /* [Ammo ID] = { walk speed, run speed } */	// AR2
-		[3] = { 200, 300 }, // Pistol
-		[4] = { 130, 265 },	// SMG
+		[0] = { 250, 350 }, -- Melee
+		[1] = { 160, 265 }, /* [Ammo ID] = { walk speed, run speed } */	-- AR2
+		[3] = { 200, 300 }, -- Pistol
+		[4] = { 130, 265 },	-- SMG
 	},
 
 	LastRakeKiller = nil,
@@ -115,7 +115,7 @@ function roundManager:NoPlayersLeft()
 	return #self.Players == 0
 end
 
-//- Add and remove players from the cache
+--- Add and remove players from the cache
 function roundManager:AddPlayerObjectToCache(player)
 	if !IsValid(player) then return end
 	roundManager.Players[#roundManager.Players + 1] = player
@@ -196,7 +196,7 @@ function roundManager:RemoveDeadPlayer(player)
 	end
 end
 
-// remove player from alive array and add to dead
+-- remove player from alive array and add to dead
 function roundManager:RegisterDead(player)
 	for k, v in pairs(self.Players) do
 		if v == player then
@@ -291,10 +291,13 @@ function FindClosestNode(toPosition, depth)
 	return result and result.node or nil
 end
 
-// start the round, reset the players and get them ready with weaponry.
+-- start the round, reset the players and get them ready with weaponry.
 function roundManager:StartRound()
-	if self:GetRoundStatus() == IN_MATCH then return end
+	/* initial startup */
 
+	if self:GetRoundStatus() == IN_MATCH then return end -- don't start if we're already in a round
+
+	/* if fog is enabled, turn it on */
 	if self.FogEnabled:GetBool() then
 		RunConsoleCommand("fpsfog_active", self.Difficulty:GetInt())
 		RunConsoleCommand("fpsfog_color_r", 30)
@@ -303,22 +306,24 @@ function roundManager:StartRound()
 		RunConsoleCommand("fpsfog_distance", 1000 / self.Difficulty:GetInt())
 		RunConsoleCommand("fpsfog_thickness", 50 * self.Difficulty:GetInt())
 	else
-		RunConsoleCommand("fpsfog_active", 0)
+		RunConsoleCommand("fpsfog_active", 0) -- keep it off
 	end
 
+	-- clean up the map
 	RunConsoleCommand("gmod_admin_cleanup")
 
-	self:ModifyStatus(IN_MATCH)
+	self:ModifyStatus(IN_MATCH) -- set the game state to match
 
+	-- let the players know the round is starting
 	PrintMessage(HUD_PRINTCENTER, "Round starting in 5 seconds...")
 
 	for _, v in pairs(self.Players) do
+		-- reset the player
 		v:StripWeapons()
 		v:StripAmmo()
+		v:Spawn() -- spawn em
 
-		v:Spawn()
-
-		local wc = v:GetNWString("WeaponClass")
+		local wc = v:GetNWString("WeaponClass") -- get the player's weapon class (WeaponClass)
 
 		for _, x in pairs(self.WeaponClasses[wc]) do
 			if ! v:Give(x[1]) then
@@ -326,26 +331,31 @@ function roundManager:StartRound()
 			end
 
 			print("Giving " .. x[1])
+
 			if x[2] then
 				v:GiveAmmo(x[3], x[2])
 			end
 
-			v:DrawViewModel( true )
+			v:DrawViewModel( true ) -- for some reason the viewmodels disappear, i don't know why and don't know if this fixes it
 		end
 
-		v:SelectWeapon(self.WeaponClasses[wc][1][1])
+		v:SelectWeapon(self.WeaponClasses[wc][1][1]) -- select the first weapon
 
-		if self.ArmorEnabled:GetBool() then
+		if self.ArmorEnabled:GetBool() then	-- if armor is enabled (why wouldn't it be, you psychos???)
 			v:SetArmor(100)
 		end
 	end
+	/* note: this future code is primarily a repetitive sequence of timers and events that happen during the match */
 		timer.Simple(5, function()
+			-- spawn the rake
 			local rake = ents.Create("drg_sf2_therake")
 
 			local randSpawn = GetRandomPointInMap(self.UseForTracking:GetString())
 
 			rake.RunSpeed = 500 * self.Difficulty:GetInt()
 			rake.SpawnHealth = 10000 * self.Difficulty:GetInt()
+
+			--!	This function may be removed in the future
 			rake.OnStuck = function()
 				local att2 = GetRandomPointInMap(self.UseForTracking:GetString())
 
@@ -353,13 +363,14 @@ function roundManager:StartRound()
 				rake:SetPos(rake:GetPos() + Vector(0, 0, 100))
 			end
 
+			-- set the spawn position to a random point
 			rake:SetPos(randSpawn)
 			rake:SetPos(rake:GetPos() + Vector(0, 0, 100))
+
+			-- spawn
 			rake:Spawn()
 
 			self.RakeEntity = rake
-
-			self:ModifyStatus(IN_MATCH)
 		end)
 
 		timer.Create("FindSomeoneToKill", 60, -1, function()
@@ -380,7 +391,7 @@ function roundManager:StartRound()
 			end)
 
 			timer.Create("SpawnSupplies", 20, -1, function()
-				local ammo = ents.Create("sent_xdest_loot")
+				local ammo = ents.Create("rake_supplycrate")
 
 				if ! ammo then return end
 
@@ -431,11 +442,11 @@ function roundManager:StartRound()
 end
 
 function roundManager:EndRound(reason)
-	// Cleanup the current round
+	-- Cleanup the current round
 	if self:GetRoundStatus() == IN_LOBBY then return end
 
 	RunConsoleCommand("fpsfog_active", 0)
-	// check the reason the game ended
+	-- check the reason the game ended
 	if reason == REASON_DEATHS then
 		PrintMessage(HUD_PRINTCENTER, "Too many players have died. Ending in 5 seconds.")
 	elseif reason == REASON_WINNER then
@@ -449,6 +460,8 @@ function roundManager:EndRound(reason)
 
 		self:ResetAllPlayers()
 
+		dataBase:SaveToFile()
+
 		if self.RakeEntity ~= nil then
 			self.RakeEntity:Remove()
 			self.RakeEntity = nil
@@ -461,7 +474,7 @@ function roundManager:EndRound(reason)
 		self.WeaponsInMap = 0
 		self.AmmoCache = {}
 
-		// Run a final cleanup
+		-- Run a final cleanup
 		RunConsoleCommand("gmod_admin_cleanup")
 	end)
 end
