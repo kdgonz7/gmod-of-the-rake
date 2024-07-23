@@ -338,11 +338,10 @@ function roundManager:StartRound()
 			if x[2] then
 				v:GiveAmmo(x[3], x[2])
 			end
-
-			v:DrawViewModel( true ) -- for some reason the viewmodels disappear, i don't know why and don't know if this fixes it
 		end
 
 		v:SelectWeapon(self.WeaponClasses[wc][1][1]) -- select the first weapon
+		v:DrawViewModel( true ) -- for some reason the viewmodels disappear, i don't know why and don't know if this fixes it
 
 		if self.ArmorEnabled:GetBool() then	-- if armor is enabled (why wouldn't it be, you psychos???)
 			v:SetArmor(100)
