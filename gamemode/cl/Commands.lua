@@ -4,4 +4,3 @@ concommand.Add("rake_MyXP", function(ply, cmd, args, str)
 	print("[Rake] your XP: " .. myXP)
 end)
 
-
