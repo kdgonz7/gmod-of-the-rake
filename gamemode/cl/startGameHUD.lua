@@ -20,6 +20,8 @@ end)
 
 net.Receive("startgamehud", function(len)
 	local ply = LocalPlayer()
+	if not ply then return end
+
 		if not frame then
 			local frame = vgui.Create("DFrame")
 			local width = ScrW() * 0.8
@@ -139,7 +141,7 @@ net.Receive("startgamehud", function(len)
 			end
 
 			grid:SetPos( 5, 5 )
-			grid:SetCols( 3 )
+			grid:SetCols( 2 )
 			grid:SetColWide( scrw * 150 / 1920 )
 			grid:SetRowHeight( scrh * 100 / 1080 )
 
