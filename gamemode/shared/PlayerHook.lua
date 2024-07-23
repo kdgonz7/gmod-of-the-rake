@@ -180,21 +180,6 @@ hook.Add("PlayerDeath", "RakeRespawn", function(ply, inflictor, attacker)
 	end
 end)
 
-/*
-	only allow one type of each weapon to be picked up
-*/
-hook.Add("PlayerCanPickupWeapon", "RakeAmmoCheck", function (ply, wep)
-	-- local plyWeapons = ply:GetWeapons()
-
-	-- for _, v in ipairs(plyWeapons) do
-	-- 	if (v:GetPrimaryAmmoType() == wep:GetPrimaryAmmoType()) then
-	-- 		ply:DropWeapon(v, nil, Vector(0, 5, 1))
-	-- 	end
-	-- end
-
-	return true
-end)
-
 -- change the speed of the player depending on their weapon (defined in roundManager)
 hook.Add("PlayerSwitchWeapon", "RakeSpeedChange", function (ply, old, new)
 	if not ply:Alive() then return end
