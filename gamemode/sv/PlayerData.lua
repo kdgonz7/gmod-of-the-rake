@@ -75,12 +75,14 @@ end
 -- modify the player XP
 -- this sets the networked integer XP and also the PData
 function dbInternal:ModifyPlayerXP(player, amount)
+	if player:IsBot() then return end
 	player:SetNWInt("XP", player:GetNWInt("XP") + amount)
 end
 
 -- modifies the player class (changing it to the newClass)
 -- checks if it exists in the Player Inventory (see below)
 function dbInternal:ModifyPlayerClass(player, newClass)
+	if player:IsBot() then return end
 	if ! dbInternal:PlayerHasWeaponClass(player, newClass) then return end
 	player:SetNWString("WeaponClass", newClass)
 end
@@ -94,6 +96,7 @@ end
 -- Adds the item to the player inventory, returning if it doesn't exist.
 function dbInternal:AddToPlayerInventory(ply, item)
 	if ! ply or ! item then return end
+	if ply:IsBot() then return end
 
 	-- decode the inventory, so we can see certain objects
 	local inventory = dbInternal:DecodeInventory(ply)
@@ -111,6 +114,8 @@ end
 
 -- returns true if the player has the class
 function dbInternal:PlayerHasWeaponClass(pl, class)
+	if pl:IsBot() then return end
+
 	-- decode the inventory and see if the class exists
 	local inventory = dbInternal:DecodeInventory(pl)
 	return inventory["Classes"][class]
@@ -122,6 +127,7 @@ end
 --! as it is very slow, but hell, that's how 
 --! a saving system works
 function dbInternal:SaveToFile()
+
 	-- create the rake player data directory
 	-- if it doesn't exist
 	if ! file.IsDir("rake", "DATA") then
@@ -141,6 +147,8 @@ end
 -- note: this is used in SaveToFile
 function dbInternal:SavePlayer(ply)
 	if ! ply then return end
+	if ply:IsBot() then return end
+
 
 	-- begin SQL operations
 	sql.Begin()
