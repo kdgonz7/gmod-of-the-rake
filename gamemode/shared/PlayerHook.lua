@@ -100,12 +100,7 @@ end)
 hook.Add("PlayerSpawn", "RakeSpawnPlayer", function(ply)
 	if not IsValid(ply) then return end
 	if not roundManager:FindPlayer(ply) then roundManager:AddPlayerObjectToCache(ply) end
-
-	-- we start the game HUD with a bunch of
-	-- goodies and UI to change their weapon class
-	net.Start("startgamehud")
-	net.Send(ply)
-
+	ply:SetCollisionGroup(1)
 	-- we strip all the player's weapons
 	ply:RemoveAllAmmo()
 	ply:StripWeapons()
