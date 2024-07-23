@@ -350,6 +350,7 @@ function roundManager:StartRound()
 	PrintMessage(HUD_PRINTCENTER, "Round starting in 5 seconds...")
 
 	for _, v in pairs(self.Players) do
+		if ! IsValid(v) then return end
 		-- reset the player
 		v:StripWeapons()
 		v:StripAmmo()
