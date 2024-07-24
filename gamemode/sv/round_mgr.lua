@@ -232,7 +232,7 @@ function roundManager:RegisterDead(player)
 			table.remove(self.Players, k)
 			break
 		end
-			end
+	end
 
 	self.DeadPlayers[#self.DeadPlayers + 1] = player
 end
@@ -242,12 +242,16 @@ function roundManager:ResetAllPlayers()
 		v:UnLock()
 		v:Spawn()
 
+		print("[Round Manager] Resetting player " .. v:Nick())
+
 		v:PrintMessage(HUD_PRINTTALK, "+5 XP for staying alive")
 		dataBase:ModifyPlayerXP(v, 5)
 	end
 
 	for k, v in pairs(self.DeadPlayers) do
-		v:UnSpectate()
+		if ! IsValid(v) then continue end
+
+		print("[Round Manager] Resetting player " .. v:Nick())
 		v:Spawn()
 
 		table.remove(self.DeadPlayers, k)
@@ -350,7 +354,8 @@ function roundManager:StartRound()
 	PrintMessage(HUD_PRINTCENTER, "Round starting in 5 seconds...")
 
 	for _, v in pairs(self.Players) do
-		if ! IsValid(v) then return end
+		if ! IsValid(v) then continue end
+		print("[Rake] Player " .. v:Nick() .. " joined")
 		-- reset the player
 		v:StripWeapons()
 		v:StripAmmo()
@@ -511,7 +516,6 @@ end
 */
 function roundManager:EndRound(reason)
 	-- Simply Ends the round
-
 	reasons = reasons or REASON_OTHER
 
 	-- Cleanup the current round
