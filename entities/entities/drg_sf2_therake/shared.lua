@@ -144,8 +144,10 @@ if SERVER then
 
 
 	function ENT:OnNewEnemy(enemy)
-		self:PlaySequence("br2_roar")
-		self:EmitSound("slender/newrake/intro1.mp3", 100)
+		if not self.WAttacking then
+			self:PlaySequence("br2_roar")
+			self:EmitSound("slender/newrake/intro1.mp3", 100)
+		end
 	end
 
 	function ENT:OnReachedPatrol()
