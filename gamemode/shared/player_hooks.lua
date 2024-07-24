@@ -47,9 +47,19 @@ end)
 /* player focused hooks */
 
 hook.Add("PlayerSetModel", "RakePlayerModel", function(ply) ply:SetModel("models/player/combine_soldier.mdl") end)
+
+-- No team killing, or the rake taking damage
+-- from something other than a player
 hook.Add("PlayerShouldTakeDamage", "RakePlayerShouldTakeDamage", function(ply, attacker)
 	-- no team killing is allowed, also no dying to things that are player-related
 	return not attacker:IsPlayer()
+end)
+
+hook.Add("ScaleNPCDamage", "RakeScaleNPCDamage", function(npc, hitgroup, dmginfo)
+	if roundManage:GetRoundStatus() != IN_MATCH then return end
+	if not dmginfo:GetInflictor():IsPlayer() then return dmginfo:ScaleDamage( 0 ) end
+
+	return dmginfo:ScaleDamage( 1.5 )
 end)
 
 -- base settings
