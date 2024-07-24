@@ -155,6 +155,8 @@ hook.Add("PlayerDeath", "RakeRespawn", function(ply, inflictor, attacker)
 		-- separately.
 		return nil
 	elseif roundManage:GetRoundStatus() == IN_MATCH then
+		if not IsValid(ply) then return end
+
 		PrintMessage(HUD_PRINTCENTER, ply:Nick() .. " has been found! The rake awaits for its next victim")
 
 		-- make sure we know the player's dead by adding
@@ -162,7 +164,10 @@ hook.Add("PlayerDeath", "RakeRespawn", function(ply, inflictor, attacker)
 		roundManage:RegisterDead(ply)
 
 		-- if we have no players left, end the match
-		if roundManage:NoPlayersLeft() then roundManage:EndRound(REASON_DEATHS) end
+		if roundManage:NoPlayersLeft() then
+			roundManage:EndRound(REASON_DEATHS)
+			return
+		end
 
 		-- set spectate mode to chase
 		ply:Spectate(5)
