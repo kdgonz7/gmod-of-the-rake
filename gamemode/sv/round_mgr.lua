@@ -510,6 +510,11 @@ end
 	This function ends a round and cleans up the game state
 */
 function roundManager:EndRound(reason)
+	-- Simply Ends the round
+
+	--! temp fix to issue #2
+	if self.LastRakeKiller == nil then return end
+
 	reasons = reasons or REASON_OTHER
 
 	-- Cleanup the current round
