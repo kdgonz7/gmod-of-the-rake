@@ -90,6 +90,10 @@ end)
 
 -- another initial spawn hook for admin checking
 hook.Add("PlayerInitialSpawn", "AdminCheckAndEtc", function(ply)
+	if not roundManager:FindPlayer(ply) then
+		print("[Round Manager] Adding player " .. ply:Nick())
+		roundManager:AddPlayerObjectToCache(ply)
+	end
 	-- give the admins a nice welcome
 	-- they deserve it for being trusted enough lol
 	if adminManager:PlayerIsAdmin(ply:SteamID64()) then
@@ -100,6 +104,8 @@ hook.Add("PlayerInitialSpawn", "AdminCheckAndEtc", function(ply)
 	if dataBase then
 		dataBase:LoadPlayerData(ply)
 	end
+
+	ply:SetCollisionGroup(COLLISION_GROUP_WEAPON)
 end)
 
 --! SO: this function is a exponentially wild one.
@@ -109,7 +115,7 @@ end)
 --! PlayerInitialSpawn instead of Spawn, so that'll be in v0.0.4 :)
 hook.Add("PlayerSpawn", "RakeSpawnPlayer", function(ply)
 	if not IsValid(ply) then return end
-	if not roundManager:FindPlayer(ply) then roundManager:AddPlayerObjectToCache(ply) end
+
 	-- we strip all the player's weapons
 	ply:RemoveAllAmmo()
 	ply:StripWeapons()
@@ -157,7 +163,11 @@ hook.Add("PlayerDeath", "RakeRespawn", function(ply, inflictor, attacker)
 	elseif roundManage:GetRoundStatus() == IN_MATCH then
 		if not IsValid(ply) then return end
 
-		PrintMessage(HUD_PRINTCENTER, ply:Nick() .. " has been found! The rake awaits for its next victim")
+		if attacker == roundManage.RakeEntity then
+			PrintMessage(HUD_PRINTCENTER, ply:Nick() .. " has been found! The rake awaits for its next victim")
+		else
+			PrintMessage(HUD_PRINTCENTER, ply:Nick() .. " has died.")
+		end
 
 		-- make sure we know the player's dead by adding
 		-- them to a separate array
