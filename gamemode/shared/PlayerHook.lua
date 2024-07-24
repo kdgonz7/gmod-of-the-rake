@@ -190,8 +190,6 @@ end)
 
 -- menu bind :)
 hook.Add("ShowSpare1", "RakeStartGameHUD", function(ply)
-	if not ply:IsSuperAdmin() or not adminManager:PlayerIsAdmin(ply:SteamID64()) then return end
-
 		net.Start("startgamehud")
 		net.Send(ply)
 end)
