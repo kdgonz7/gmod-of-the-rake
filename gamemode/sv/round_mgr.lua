@@ -227,6 +227,7 @@ end
 
 -- remove player from alive array and add to dead
 function roundManager:RegisterDead(player)
+	print("[Round Manager] Player " .. player:Nick() .. " died")
 	for k, v in pairs(self.Players) do
 		if v == player then
 			table.remove(self.Players, k)
@@ -235,6 +236,8 @@ function roundManager:RegisterDead(player)
 	end
 
 	self.DeadPlayers[#self.DeadPlayers + 1] = player
+	print("==== dead players")
+	PrintTable(self.DeadPlayers)
 end
 
 function roundManager:ResetAllPlayers()
@@ -248,14 +251,21 @@ function roundManager:ResetAllPlayers()
 		dataBase:ModifyPlayerXP(v, 5)
 	end
 
-	for k, v in pairs(self.DeadPlayers) do
-		if ! IsValid(v) then continue end
+	for k, v in ipairs(self.DeadPlayers) do
+		if ! IsValid(v) then
+			print("Player invalid")
+			continue
+		end
 
 		print("[Round Manager] Resetting player " .. v:Nick())
+
+		v:UnSpectate()
 		v:Spawn()
 
-		table.remove(self.DeadPlayers, k)
+		self:AddPlayerObjectToCache(v)
 	end
+
+	self.DeadPlayers = {}
 end
 /* 
 	Rounds
@@ -529,6 +539,9 @@ function roundManager:EndRound(reason)
 	if reason == REASON_DEATHS then
 		PrintMessage(HUD_PRINTCENTER, "Too many players have died. Ending in 5 seconds.")
 	elseif reason == REASON_WINNER then
+		if ! IsValid(self.LastRakeKiller) then
+			PrintMessage(HUD_PRINTCENTER, "Someone killed the rake!")
+		end
 		PrintMessage(HUD_PRINTCENTER, self.LastRakeKiller:Nick() .. ": Report! Creature Down!")
 	else
 		PrintMessage(HUD_PRINTCENTER, "Report in team. Round over.")
