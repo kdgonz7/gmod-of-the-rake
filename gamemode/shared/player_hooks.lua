@@ -119,6 +119,10 @@ hook.Add("PlayerSpawn", "RakeSpawnPlayer", function(ply)
 	-- we strip all the player's weapons
 	ply:RemoveAllAmmo()
 	ply:StripWeapons()
+	if not ply:IsBot() then
+		ply:SetNoCollideWithTeammates(true)
+		ply:SetTeam(1)
+	end
 
 	-- if we're in the lobby, give them a little pistol and
 	-- make sure they can't get killed.
