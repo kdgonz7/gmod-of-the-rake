@@ -118,6 +118,7 @@ function RandomPatrolPoint( area )
 end
 
 rePathDelay = 1
+local aPlayer
 
 hook.Add("PlayerSpawn", "RakeBotHooker", function(ply)
 	if ! ply:IsBot() then return end
@@ -197,8 +198,12 @@ hook.Add("StartCommand", "RakeStartCommand", function(ply, cmd)
 
 	-- if there's no path, and our delay is past we'll get a new path
 	if ( !ply.path && ply.lastRePath2 + rePathDelay < CurTime() ) then
-		local aPlayer = player.GetHumans()[ math.random( 1, #player.GetHumans() ) ]
+		if ! aPlayer || ! aPlayer:Alive() then
+			aPlayer = player.GetHumans()[ math.random( 1, #player.GetHumans() ) ]
+		end
+
 		stat = "FOR-PLAYER"
+
 		if stat == "FIND-RAKE" then
 			if IsValid(enemy[1]) then
 				aPlayer = enemy[1]
